@@ -7,17 +7,30 @@ class Move
 
 Modules:
 
-1) determine if a move is valid
-boolean isValidMove(Move m)
-2) generate a list of valid moves
-int[][] validMoves(Board b)
-3) establish connections with chips of same color
+1) Board double array of ints
+Machine Player uses this to keep track of the board.
 
-4) identify if network exists
+2) determine if a move is valid
+boolean isValidMove(Move m)
+Looks at a Move in respect to the board, determines if it's valid
+
+3) generate a list of valid moves
+int[][] validMoves(Board b)
+Valid moves passed into the game tree search 
+
+4) establish connections with chips of same color
+Look at the chips on the board, and determine possible moves to make a possible network.
+
+5) identify if network exists
 boolean hasValidNetwork(Board b)
-5) scoring and evaluating a board
+Look at the MachinePlayer's board, checking to see if a network exists.
+
+6) scoring and evaluating a board
 int evaluateBoard(Board b)
-6) performing a game search tree and pruning
+Assigns scores to a board based on positioning of chips. Returns a number -1=<0=<1
+
+7) performing a game search tree and pruning
 Move chooseMove(int searchDepth)
 int alphaBetaPrune(int alpha, int beta)
+Chooses a Move based on the state of the game board. Automatically prunes away games that can't be won.
 
