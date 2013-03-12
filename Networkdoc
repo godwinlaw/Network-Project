@@ -8,8 +8,16 @@ class Move
 Modules:
 
 1) determine if a move is valid
-2) make list of valid moves
+boolean isValidMove(Move m)
+2) generate a list of valid moves
+int[][] validMoves(Board b)
 3) establish connections with chips of same color
+
 4) identify if network exists
+boolean hasValidNetwork(Board b)
 5) scoring and evaluating a board
+int evaluateBoard(Board b)
 6) performing a game search tree and pruning
+Move chooseMove(int searchDepth)
+int alphaBetaPrune(int alpha, int beta)
+
