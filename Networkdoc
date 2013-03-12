@@ -1,0 +1,15 @@
+Classes needed: 
+
+abstract class Player
+class MachinePlayer extends Player
+class Board
+class Move
+
+Modules:
+
+1) determine if a move is valid
+2) make list of valid moves
+3) establish connections with chips of same color
+4) identify if network exists
+5) scoring and evaluating a board
+6) performing a game search tree and pruning
