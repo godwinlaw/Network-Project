@@ -7,7 +7,7 @@ class Move
 
 Modules:
 
-1) Board double array of ints
+1) Board, contains double array of ints
 Machine Player uses this to keep track of the board.
 
 2) determine if a move is valid
