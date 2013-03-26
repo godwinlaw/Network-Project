@@ -30,17 +30,17 @@ public class Board {
 		}
 	}
 
-	private void addChip(Move m, int color) {
-		board[m.x1][m.y1] = color;
+	private void addChip(int x, int y, int color) {
+		board[x][y] = color;
 	}
 
-	private void moveChip(Move m, int color) {
-		board[m.x1][m.y1] = EMPTY;
-		board[m.x2][m.y2] = color;
+	private void moveChip(int x1, int y1, int x2, int y2, int color) {
+		board[x2][y2] = EMPTY;
+		board[x1][y1] = color;
 	}
     
-	private void removeChip(Move m) {
-		board[m.x1][m.y1] = EMPTY;
+	private void removeChip(int x, int y) {
+		board[x][y] = EMPTY;
 	}
 	
 	public boolean isFull() {
@@ -60,9 +60,9 @@ public class Board {
 	
 	public void performMove(Move m, int color) {
 		if (m.moveKind == 1) {
-			addChip(m, color);
+			addChip(m.x1, m.x2, color);
 		} else if (m.moveKind == 2) {
-			moveChip(m, color);
+			moveChip(m.x1, m.y1, m.x2, m.y2, color);
 		} else {
 			return;
 		}
@@ -70,11 +70,12 @@ public class Board {
 	
 	public void undoMove(Move m, int color) {
 		if (m.moveKind == 1) {
-			removeChip(m);
+			removeChip(m.x1, m.y2);
 		} else if (m.moveKind == 2) {
-			
+			moveChip(m.x2, m.y2, m.x1, m.y1);
 		}
 	}
+	
 	public boolean[] validMoves(int x, int y, int moveKind, int color) {
 		boolean[] validMoves = new boolean[64];
 		for (int i = 0; i < 64; i++) {
