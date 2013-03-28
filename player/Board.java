@@ -9,7 +9,10 @@ import list.*;
  */
 
 public class Board {
-
+  
+  public static final int BLACK = 0;
+  public static final int WHITE = 1;
+  
   /*
    * board is an array that holds Chip objects. 
    * myColor indicates MachinePlayer's color.
@@ -28,9 +31,16 @@ public class Board {
    * corners of the board are initialized to have "fake" Chip objects (See
    * documentation in Chip class). No chips may be placed in these locations.
    */
-  public Board() {
+  public Board(int playerColor) {
     board = new Chip[8][8];
     board[0][0] = board[0][7] = board[7][0] = board[7][7] = (new Chip(false));
+    if (playerColor == BLACK) {
+      this.myColor = BLACK;
+      opponentColor = WHITE;
+    } else if (playerColor == WHITE) {
+      this.myColor = WHITE;
+      opponentColor = BLACK;
+    }
     chipsLocations = new ChipList(myColor);
     opponentChipsLocations = new ChipList(opponentColor);
   }
@@ -94,13 +104,32 @@ public class Board {
   }
 
   /*
-   * Description of method here
-   * !!!PLEASE WRITE THIS FUNCTION ASAP AND SEND IT TO ME SO I CAN TEST OUT validMoves()!!!!
+   *  isValidMove() returns a boolean indicating whether or not a given Move is valid or not.  
    */
   public boolean isValidMove(Move m, int color) {
-    // new implementation here
-    return false;
+    boolean isValidPlace;
+    if (color==BLACK) {
+      isValidPlace = !(m.x1==0) && !(m.x1==7) && board[m.x1][m.y1]==null;
+    } else {
+      isValidPlace = !(m.y1==0) && !(m.y1==7) && board[m.x1][m.y1]==null;
+    }
+    if (!isValidPlace) {
+      return false;
+    }
+    Chip adjacents[] = adjacents(m.x1, m.x2);
+    int adjCount = adjacentCount(adjacents, color);
+    if (adjCount>=2) {
+      return false;
+    } else if (adjCount==1) {
+      int[] adjCoordinates = adjacentCoordinates(adjacents, color);
+      if (adjacentCount(adjacents(adjCoordinates[0], adjCoordinates[1]), color)>=1) {
+        return false;
+      }
+    }
+    return true;
   }
+  
+  
 
   /*
    * countNetworks() returns an int-array with information about possible
@@ -128,7 +157,7 @@ public class Board {
   }
 
   /*
-   * performMove() executes the given move depending on the movekind of the
+   * performMove() executes the given move depending on the moveKind of the
    * move. @param m is the move to be performed
    */
   public void performMove(Move m, int color) {
@@ -162,7 +191,13 @@ public class Board {
   // NEEDS TO BE CHECKED FOR BUGS
   public Move[] validMoves(int color) {
     Move[] validMoves = new Move[64];
-    if (Chip.numOfChipsCreated() < 20) {
+    int numOfChipsOnBoard = 0;
+    if (color == myColor) {
+      numOfChipsOnBoard = chipsLocations.length(); 
+    } else if (color == opponentColor) {
+      numOfChipsOnBoard = opponentChipsLocations.length();
+    }
+    if (numOfChipsOnBoard < 10) {
       for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
           Move newMove = new Move(i, j);
@@ -199,4 +234,97 @@ public class Board {
     return score;
   }
 
+
+  /******************************************
+   *                                        *
+   *         HELPER METHODS BELOW           *
+   *                                        *
+   ******************************************                                     
+   */
+ 
+  /*
+   *  adjacents() is a helper function for isValidMove(). 
+   *  it returns an array of Chips that are adjacent (up, down, left, right, all four diagonals)
+   *   to a location given by two coordinates. 
+   *  @param cx and @param cy are the coordinates given.
+   */
+ 
+  private Chip[] adjacents(int cx, int cy) {
+    Chip adjacents[];
+    boolean atLeft, atRight, atUpper, atLower;
+    if (cx==0) {
+      atLeft = true;
+      atRight = atUpper = atLower = false;
+    } else if (cx==7) {
+      atRight = true;
+      atLeft = atUpper = atLower = false;
+    } else if (cy==0) {
+      atUpper = true;
+      atRight = atLeft = atLower = false;
+    } else if (cy==7) {
+      atLower = true;
+      atRight = atLeft = atUpper = false;
+    } else {
+      atRight = atLeft = atUpper = atLower = false;
+    }
+ 
+    if (atLeft) {
+      Chip left_adjacents[] = { board[cx  ][cy-1], board[cx+1][cy-1], board[cx+1][cy  ],
+          board[cx+1][cy+1], board[cx  ][cy+1]};
+      adjacents = left_adjacents;
+    } else if (atRight) {
+      Chip right_adjacents[] ={ board[cx  ][cy-1], board[cx  ][cy+1], board[cx-1][cy+1],
+          board[cx-1][cy  ], board[cx-1][cy-1]};
+      adjacents = right_adjacents;
+    } else if (atUpper) {
+      Chip upper_adjacents[] = {  board[cx+1][cy  ], board[cx+1][cy+1], board[cx  ][cy+1], 
+          board[cx-1][cy+1], board[cx-1][cy  ]};
+      adjacents = upper_adjacents;
+    } else if (atLower) {
+      Chip lower_adjacents[] = {  board[cx  ][cy-1], board[cx+1][cy-1], board[cx+1][cy  ],
+          board[cx-1][cy  ], board[cx-1][cy-1]};
+      adjacents = lower_adjacents;
+    } else {
+      Chip mid_adjacents[] = {    board[cx  ][cy-1], board[cx+1][cy-1], board[cx+1][cy  ],
+          board[cx+1][cy+1], board[cx  ][cy+1], board[cx-1][cy+1],
+          board[cx-1][cy  ], board[cx-1][cy-1]};
+      adjacents = mid_adjacents;
+    }
+    return adjacents;
+  }
+  
+  /*
+   *  adjacentCoordinates() is another helper function for isValidMove(). 
+   *  this function returns the coordinates of a Chip of the same color in adjacents.
+   *  this function assumes there is only 1 Chip of the same color in adjacents,
+   *   since it only returns the last matching Chip in adjacents.
+   *  @param adjacents is the array of Chips we check, @param color is the color to compare to.
+   */
+ 
+  private int[] adjacentCoordinates(Chip adjacents[], int color) {
+    int[] coordinates = new int[2];
+    for (Chip c: adjacents) {
+      if (c.color==color) {
+        coordinates[0] = c.xpos;
+        coordinates[1] = c.ypos;
+      }
+    }
+    return coordinates;
+  }
+  
+  /*
+   *  adjacentCount() is yet another helper method for isValidMove().
+   *  this method returns the number of adjacent Chips of the same color. 
+   *  @param adjacents is the Chip array of adjacent Chips, @param color is the color we compare to.
+   */
+ 
+  private int adjacentCount(Chip[] adjacents, int color) {
+    int adjCount = 0;
+    for (Chip c: adjacents) {
+      if (c.color==color) {
+        adjCount++;       
+        }
+      }
+    return adjCount;
+  }
 }

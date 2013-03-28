@@ -2,13 +2,16 @@
 
 package player;
 
+import java.util.Random;
+
 /**
  * An implementation of an automatic Network player. Keeps track of moves made
  * by both players. Can select a move for itself.
  */
 public class MachinePlayer extends Player {
 
-	private int color;
+	private int playerColor;
+	private int opponentColor;
 	private int searchDepth;
 	private Board board;
 
@@ -21,15 +24,18 @@ public class MachinePlayer extends Player {
 	// Creates a machine player with the given color and search depth. Color is
 	// either 0 (black) or 1 (white). (White has the first move.)
 	public MachinePlayer(int color, int searchDepth) {
-		this.color = color;
+		playerColor = color;
+		opponentColor = Math.abs(playerColor - 1);
 		this.searchDepth = searchDepth;
-		board = new Board();
+		board = new Board(color);
 	}
 
 	// Returns a new move by "this" player. Internally records the move (updates
 	// the internal game board) as a move by "this" player.
 	public Move chooseMove() {
-		return gameTreeSearch(color, searchDepth);
+		Move[] moves = board.validMoves(playerColor);
+		Random generator = new Random();
+		return moves[generator.nextInt(moves.length)];
 	}
 
 	// If the Move m is legal, records the move as a move by the opponent
@@ -37,13 +43,7 @@ public class MachinePlayer extends Player {
 	// illegal, returns false without modifying the internal state of "this"
 	// player. This method allows your opponents to inform you of their moves.
 	public boolean opponentMove(Move m) {
-		int oppColor;
-		if (color == 0) {
-			oppColor = Board.WHITE;
-		} else {
-			oppColor = Board.BLACK;
-		}
-		return recordMove(m, oppColor);
+		return recordMove(m, opponentColor);
 	}
 
 	// If the Move m is legal, records the move as a move by "this" player
@@ -52,40 +52,45 @@ public class MachinePlayer extends Player {
 	// player. This method is used to help set up "Network problems" for your
 	// player to solve.
 	public boolean forceMove(Move m) {
-		return recordMove(m, color);
+		return recordMove(m, playerColor);
 	}
 
 	private boolean recordMove(Move m, int color) {
 		if (!board.isValidMove(m, color)) {
 			return false;
-		} else if (m.moveKind == Move.ADD) {
-			board.addChip(m.x1, m.y1, color);
-		} else if (m.moveKind == Move.STEP) {
-			board.moveChip(m.x1, m.y1, m.x2, m.y2, color);
+		} else {
+			board.performMove(m, color);
 		}
 		return true;
 	}
-
-	private Move gameTreeSearch(int color, int searchDepth) {
-		BestMove myBest = new BestMove();
+  /**
+	private BestMove gameTreeSearch(int color, int searchDepth) {
+		BestMove myBest = new BestMove(0);
 		BestMove reply;
 
-		if (board.hasValidNetwork()) {
-			return new Move(); 
+		//?
+		if (searchDepth == 0 || board.hasValidNetwork()) {
+		  return new BestMove(board.evaluateBoard());
+		}
+		if (color == playerColor) {
+			myBest.score = -1; 
+		} else if (color == opponentColor) {
+		  myBest.score = 1;
 		}
 
-		for (board.validMoves(color)) {
-			board.performMove(m);
-			reply = chooseMove(Math.abs(color - 1));
-			board.undoMove(m);
-			if (((side == 0) && (reply.score >= myBest.score)) 
-					|| ((side == 1) && (reply.score <= myBest.score))) {
+		for (Move m : board.validMoves(color)) {
+			board.performMove(m, color);
+			reply = gameTreeSearch(Math.abs(color - 1), searchDepth - 1);
+			board.undoMove(m, color);
+			if (((color == playerColor) && (reply.score >= myBest.score)) 
+					|| ((color == opponentColor) && (reply.score <= myBest.score))) {
 				myBest.move = m;
 				myBest.score = reply.score;
 			}
 		}
 		return myBest;	
 	}
+  */
 
 	private Move gameTreeSearchwithAlphaBetaPruning() {
 		return null;
