@@ -19,9 +19,10 @@ public class ChipNode {
   public int xpos;
   public int ypos;
   public int color;
+  public int id;
   protected ChipNode prev;
   protected ChipNode next;
-
+	
   /**
    *  ChipNode() constructor.
    *  @param x and @param y are the coordinates of the chip.
@@ -30,10 +31,13 @@ public class ChipNode {
    *  @param n the node following this node.
    */
   ChipNode(int x, int y, int color, ChipNode p, ChipNode n) {
+    this.color = color;
     xpos = x;
     ypos = y;
+    id = x + y;
     prev = p;
     next = n;
+
   }
   
   /*
