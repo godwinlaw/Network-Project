@@ -59,7 +59,7 @@ public class Board {
    * @param x and @param y are the coordinates at which chip is to be added.
    * @param color is the color of the chip that is to be added.
    */
-  private void addChip(int x, int y, int color) {
+  public void addChip(int x, int y, int color) {
     if (color == myColor && chipsLocations.length() < 10) {
       chipsLocations.insertFront(x, y, color);
       board[x][y] = myColor;
@@ -78,7 +78,7 @@ public class Board {
    * @param x2 and @param y2 are the old coordinates of the Chip.
    * @param color is the color of the chip.
    */
-  private void moveChip(int x1, int y1, int x2, int y2, int color) {
+  public void moveChip(int x1, int y1, int x2, int y2, int color) {
     if (color == myColor && chipsLocations.length() == 10) {
       board[x1][y1] = board[y2][x2];
       board[x2][y2] = EMPTY;
@@ -193,7 +193,6 @@ public class Board {
    * method returns STEP moves that can be made to the board.
    */
   // NEEDS TO BE CHECKED FOR BUGS
-  // COORDINATES!!!!
   public MoveList validMoves(int color) {
     MoveList validMoves = new MoveList();
     ChipList chipList = null;
@@ -203,29 +202,34 @@ public class Board {
       chipList = opponentChipsLocations;
     }
     if (chipList.length() < 10) {
-      for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
+      for (int i = 0; i < DIMENSION; i++) {
+        for (int j = 0; j < DIMENSION; j++) {
           Move newMove = new Move(i, j);
           if (isValidMove(newMove, color)) {
             validMoves.insertFront(newMove);
           }
         }
       }
-    }
-/*    } else {
-      for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-          if (cell != EMPTY || cell != BLOCKED) {
-            ChipNode chip = chipList.findNode(i,j,color); 
-            for (int c = 0; c < chip.possibleStepMoves().length; c++) {
-              if (isValidMove(chip.possibleStepMoves()[c], color)) {
-                validMoves.insertFront(chip.possibleStepMoves()[c]);
-              }
-            }
+    } else {
+      int[][] emptyCells = new int[DIMENSION][DIMENSION];
+      for (int i = 0; i < DIMENSION; i++ ) {
+        for (int j = 0; j < DIMENSION; j++) {
+          if (board[i][j] == EMPTY) {
+            emptyCells[i * DIMENSION + j][0] = i;
+            emptyCells[i * DIMENSION + j][1] = j;
           }
         }
       }
-    }*/
+      while (chipList.hasNext()) {
+        ChipNode c = chipList.nextChip();
+        for (int[] cell : emptyCells) {
+          Move newMove = new Move(cell[0], cell[1], c.xpos, c.ypos);
+          if (isValidMove(newMove, color)) {
+            validMoves.insertFront(newMove);
+          }
+        }
+      }      
+    }
     return validMoves;
   }
 

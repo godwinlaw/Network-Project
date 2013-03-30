@@ -16,6 +16,7 @@ public class ChipList {
 
   protected ChipNode head;
   protected int size;
+  protected ChipNode current;
   public int color;
 
   /**
@@ -102,22 +103,6 @@ public class ChipList {
   }
 
   /**
-   * insertBack() inserts an item at the back of this ChipList.
-   * 
-   * @param x, @param y, and @param color are the coordinates and the color of
-   *          the chip to be inserted
-   */
-  public void insertBack(int x, int y, int color) {
-    if (size == 0) {
-      insertFront(x, y, color);
-    } else {
-      head.prev = newNode(x, y, color, head.prev, head);
-      head.prev.prev.next = head.prev;
-    }
-    size++;
-  }
-
-  /**
    * front() returns the node at the front of this ChipList.
    */
   public ChipNode front() {
@@ -125,69 +110,6 @@ public class ChipList {
       return null;
     } else {
       return head.next;
-    }
-  }
-
-  /**
-   * back() returns the node at the back of this ChipList.
-   */
-  public ChipNode back() {
-    if (size == 0) {
-      return null;
-    } else {
-      return head.prev;
-    }
-  }
-
-  /**
-   * next() returns the node following "node" in this ChipList. If "node" is
-   * null, or "node" is the last node in this ChipList, returns null.
-   */
-  public ChipNode next(ChipNode node) {
-    if (node == null || node == head.prev) {
-      return null;
-    } else {
-      return node.next;
-    }
-  }
-
-  /**
-   * prev() returns the node prior to "node" in this ChipList. If "node" is
-   * null, or "node" is the first node in this ChipList, returns null.
-   */
-  public ChipNode prev(ChipNode node) {
-    if (node == null || node == head.next) {
-      return null;
-    } else {
-      return node.prev;
-    }
-  }
-
-  /**
-   * insertAfter() inserts an item in this ChipList immediately following
-   * "node". If "node" is null, do nothing.
-   * @param x, @param y, and @param color are the coordinates and the color of
-   *          the chip to be inserted
-   */
-  public void insertAfter(int x, int y, int color, ChipNode node) {
-    if (node != null) {
-      node.next = newNode(x, y, color, node, node.next);
-      node.next.next.prev = node.next;
-      size++;
-    }
-  }
-
-  /**
-   * insertBefore() inserts an item in this ChipList immediately before "node".
-   * If "node" is null, do nothing.
-   * @param x, @param y, and @param color are the coordinates and the color of
-   *          the chip to be inserted
-   */
-  public void insertBefore(int x, int y, int color, ChipNode node) {
-    if (node != null) {
-      node.prev = newNode(x, y, color, node.prev, node);
-      node.prev.prev.next = node.prev;
-      size++;
     }
   }
 
@@ -202,5 +124,22 @@ public class ChipList {
     }
   }
 
-
+  public boolean hasNext() {
+    if (current == head) {
+      resetIterator();
+      return false;
+    } else {
+      return true;
+    }
+  }
+  
+  public ChipNode nextChip() {
+    ChipNode c = current;
+    current = current.next;
+    return c;
+  }
+  
+  private void resetIterator() {
+    current = front();
+  }
 }

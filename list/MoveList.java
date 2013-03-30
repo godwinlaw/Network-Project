@@ -101,6 +101,7 @@ public class MoveList {
   
   public boolean hasNext() {
     if (current == head) {
+      resetIterator();
       return false;
     } else {
       return true;

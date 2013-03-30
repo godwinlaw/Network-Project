@@ -17,6 +17,7 @@ public class MachinePlayer extends Player {
   private int searchDepth;
   private Board board;
   private HashTableChained hashTable;
+  private boolean alphaBetaPrune;
 
   // Creates a machine player with the given color. Color is either 0 (black)
   // or 1 (white). (White has the first move.)
@@ -104,6 +105,7 @@ public class MachinePlayer extends Player {
 		return myBest;	
 	}
 
+  //check for faster move
   private BestMove gameTreeSearchwithAlphaBetaPruning(int color, int alpha, int beta, int searchDepth) {
       BestMove myBest = new BestMove();
       BestMove reply;
