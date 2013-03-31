@@ -120,20 +120,106 @@ public class Board {
   }
 
   /*
-   *  isValidMove() returns a boolean indicating whether or not a given Move is valid or not.  
-   */
-  public boolean isValidMove(Move m, int color) {
-    boolean isValidPlace = false;
-    if (color == BLACK) {
-      isValidPlace = !(m.x1==0) && !(m.x1==7) && board[m.x1][m.y1]==EMPTY;
-    } else if (color == WHITE){
-      isValidPlace = !(m.y1==0) && !(m.y1==7) && board[m.x1][m.y1]==EMPTY;
-    }
-    if (!isValidPlace) {
-      return false;
-    }
-    return true;
-  }
+   *  isValidMove() returns a boolean indicating whether or not a given Move is valid or not.
+	 *  @param m is the given Move, @param color is the color of the player making the Move
+	 */
+	public boolean isValidMove(Move m, int color) {
+		boolean isValidPlace;
+		if (color==BLACK) {
+			isValidPlace = !(m.x1==0) && !(m.x1==7) && board[m.x1][m.y1]==EMPTY;
+		} else {
+			isValidPlace = !(m.y1==0) && !(m.y1==7) && board[m.x1][m.y1]==EMPTY;
+		}
+		if (!isValidPlace) {
+			return false;
+		}
+		int adjacents[] = adjacents(m.x1, m.y1);
+		int adjCount = adjacentCount(adjacents, color);
+		if (adjCount>=2) {
+			return false;
+		} else if (adjCount==1) {
+			int[][] adjCoordinates = adjacentCoordinates(m.x1, m.y1);
+			int[] adjColor = new int[2];
+			for (int[] adj: adjCoordinates) {
+				if (board[adj[0]][adj[1]]==color) {
+					adjColor[0] = adj[0];
+					adjColor[1] = adj[1];
+				}
+			}
+			if (adjacentCount(adjacents(adjColor[0], adjColor[1]), color)>=1) {
+				return false;
+			}
+		}
+		return true;
+	}
+  
+  /*
+	 *  adjacentCoordinates() is a method that returns a double array of ints, representing the 
+	 *  coordinates of the spaces next to the given x and y, the indices of the first array representing 
+	 *  the different coordinates, and the second array representing the x and y values.
+	 *  @param cx and cy are the given x and y values.
+	 */
+	
+	private int[][] adjacentCoordinates(int cx, int cy) {
+		if (cx==0) {
+			int[][] coords = {{cx, cy-1}, {cx+1, cy-1}, {cx+1, cy}, {cx+1, cy+1}, {cx, cy+1}};
+			return coords;
+		} else if (cx==7) {
+			int[][] coords = {{cx, cy-1}, {cx, cy+1}, {cx-1, cy+1}, {cx-1, cy}, {cx-1, cy-1}};
+			return coords;
+		} else if (cy==0) {
+			int[][] coords = {{cx+1 ,cy}, {cx+1, cy+1}, {cx, cy+1}, {cx-1, cy+1}, {cx-1, cy}};
+			return coords;
+		} else if (cy==7) {
+			int[][] coords = {{cx, cy-1}, {cx+1, cy-1}, {cx+1, cy}, {cx-1, cy}, {cx-1, cy-1}};
+			return coords;
+		} else {
+			int[][] coords = { 	{cx, cy-1}, {cx+1, cy-1}, {cx+1, cy}, {cx+1, cy+1}, 
+							   	{cx, cy+1}, {cx-1, cy+1}, {cx-1, cy}, {cx-1, cy-1}};
+			return coords;
+		}
+	}
+	
+	/*
+	 *  adjacents() is a helper function for isValidMove(). 
+	 *  it returns an array of ints that are adjacent (up, down, left, right, all four diagonals)
+	 *   to a location given by two coordinates. 
+	 *  @param cx and @param cy are the coordinates given.
+	 */
+
+	private int[] adjacents(int cx, int cy) {
+		int[][] adjc = adjacentCoordinates(cx, cy);
+		int[] adjacents;
+		if (cx==0 || cx==7 || cy==0 || cy==7) {
+			int[] sub_adjacents = {board[adjc[0][0]][adjc[0][1]], board[adjc[1][0]][adjc[1][1]], 
+					board[adjc[2][0]][adjc[2][1]], board[adjc[3][0]][adjc[3][1]], 
+				    board[adjc[4][0]][adjc[4][1]]};
+			adjacents = sub_adjacents;
+		} else {
+			int[] mid_adjacents = {board[adjc[0][0]][adjc[0][1]], board[adjc[1][0]][adjc[1][1]], 
+					board[adjc[2][0]][adjc[2][1]], board[adjc[3][0]][adjc[3][1]], 
+				    board[adjc[4][0]][adjc[4][1]], board[adjc[5][0]][adjc[5][1]],
+				    board[adjc[6][0]][adjc[6][1]], board[adjc[7][0]][adjc[7][1]]};
+			adjacents = mid_adjacents;
+		}
+		return adjacents;
+	}
+  
+  /*
+	 *  adjacentCount() is yet another helper method for isValidMove().
+	 *  this method returns the number of adjacent Chips of the same color. 
+	 *  @param adjacents is the Chip array of adjacent Chips, @param color is the color we compare to.
+	 */
+
+	private int adjacentCount(int[] adjacents, int color) {
+		int adjCount = 0;
+		for (int c: adjacents) {
+			if (c==color) {
+				adjCount++;				
+			}
+		}
+		return adjCount;
+	}
 
   /*
    * countNetworks() returns an int-array with information about possible
