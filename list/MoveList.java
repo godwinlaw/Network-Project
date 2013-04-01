@@ -117,4 +117,13 @@ public class MoveList {
   public void resetIterator() {
     current = front();
   }
+  
+  public String toString() {
+    String output = "";
+    resetIterator();
+    while(hasNext()) {
+      output += nextMove().toString() + " ";
+    }
+    return output;
+  }
 }

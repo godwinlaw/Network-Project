@@ -39,8 +39,11 @@ public class MachinePlayer extends Player {
   public Move chooseMove() {
     MoveList moves = board.validMoves(playerColor);
     Random generator = new Random();
-    System.out.println(moves.length());
-    return moves.elementAt(generator.nextInt(moves.length()));
+    System.out.println("cM:" + moves.length());
+    Move move = moves.elementAt(generator.nextInt(moves.length()));
+    forceMove(move);
+    System.out.println(board);
+    return move;
   }
 
   // If the Move m is legal, records the move as a move by the opponent

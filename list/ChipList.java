@@ -74,12 +74,12 @@ public class ChipList {
    * @param color is the color of that node.
    */
   public ChipNode findNode(int x, int y, int color) {
-    ChipNode current = head;
-    while(current != head) {
-      if (current.xpos == x && current.ypos == y && current.color == color) {
-        return current;
+    resetIterator();
+    while(hasNext()) {
+      ChipNode node = nextChip();
+      if (node.xpos == x && node.ypos == y && node.color == color) {
+        return node;
       }
-      current = current.next;
     }
     System.out.println("ERROR: Node not found");
     return null;
@@ -95,6 +95,7 @@ public class ChipList {
     if (size == 0) {
       head.next = newNode(x, y, color, head, head);
       head.prev = head.next;
+      current = head.next;
     } else {
       head.next = newNode(x, y, color, head, head.next);
       head.next.next.prev = head.next;
@@ -141,5 +142,15 @@ public class ChipList {
   
   private void resetIterator() {
     current = front();
+  }
+  
+  public String toString() {
+    String l = "";
+    resetIterator();
+    while(hasNext()) {
+      ChipNode chip = nextChip();
+      l += "( " + chip.xpos + "," + chip.ypos + " ) ";
+    }
+    return l;
   }
 }

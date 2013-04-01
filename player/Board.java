@@ -3,32 +3,31 @@ package player;
 import list.*;
 
 /*
- * The Board Class (2D int array)
- * This is used as an internal representation of the Network
- * game board for the MachinePlayer.
+ * The Board Class (2D int array) This is used as an internal representation of
+ * the Network game board for the MachinePlayer.
  */
 
 public class Board {
-  
+
   public static final int BLACK = 0;
   public static final int WHITE = 1;
   public static final int BLOCKED = -1;
   public static final int EMPTY = 2;
   public static final int DIMENSION = 8;
-  
+
   /*
-   * board is an array that holds Chip objects. 
-   * myColor indicates MachinePlayer's color.
-   * opponentColor indicates the opponent's color.
-   * MachinePlayreChipsLocations is a ChipList that holds all the information about MachinePlayer's chips on the board.
-   * opponentChipsLocation holds the same information about the opponent's chips.
+   * board is an array that holds Chip objects. myColor indicates
+   * MachinePlayer's color. opponentColor indicates the opponent's color.
+   * MachinePlayreChipsLocations is a ChipList that holds all the information
+   * about MachinePlayer's chips on the board. opponentChipsLocation holds the
+   * same information about the opponent's chips.
    */
   private int[][] board;
   public int myColor;
   public int opponentColor;
   private ChipList chipsLocations;
   private ChipList opponentChipsLocations;
- 
+
   /*
    * The default constructor Creates a 8 x 8 board holding Chip objects. The
    * corners of the board are initialized to have "fake" Chip objects (See
@@ -54,13 +53,15 @@ public class Board {
   }
 
   /*
-   * addChip() inserts a Chip object at the specified coordinates on the board if there are less than 10 chips on the board.
-   * Also records it in the player's ChipList.
+   * addChip() inserts a Chip object at the specified coordinates on the board
+   * if there are less than 10 chips on the board. Also records it in the
+   * player's ChipList.
    * @param x and @param y are the coordinates at which chip is to be added.
    * @param color is the color of the chip that is to be added.
    */
   public void addChip(int x, int y, int color) {
     if (color == myColor && chipsLocations.length() < 10) {
+      System.out.println("(" + x + "," + y + ")");
       chipsLocations.insertFront(x, y, color);
       board[x][y] = myColor;
     } else if (color == opponentColor && opponentChipsLocations.length() < 10) {
@@ -72,23 +73,26 @@ public class Board {
   }
 
   /*
-   * moveChip() moves a Chip from one cell to another if and only if there are 10 chips on the board.
-   * Also records it in the player's ChipList.
+   * moveChip() moves a Chip from one cell to another if and only if there are
+   * 10 chips on the board. Also records it in the player's ChipList.
    * @param x1 and @param y1 are the new coordinates of the Chip.
    * @param x2 and @param y2 are the old coordinates of the Chip.
    * @param color is the color of the chip.
    */
-  public void moveChip(int x1, int y1, int x2, int y2, int color) {
+  private void moveChip(int x1, int y1, int x2, int y2, int color) {
+    System.out.println("MachinePlayer chips: " + chipsLocations);
+    System.out.println("HumanPlayer chips: " + opponentChipsLocations);
     if (color == myColor && chipsLocations.length() == 10) {
-      board[x1][y1] = board[y2][x2];
+      board[x1][y1] = board[x2][y2];
       board[x2][y2] = EMPTY;
-      chipsLocations.findNode(x2,y2,color).updateCoordinates(x1,y1);
+      chipsLocations.findNode(x2, y2, color).updateCoordinates(x1, y1);
     } else if (color == opponentColor && opponentChipsLocations.length() == 10) {
-      board[x1][y1] = board[y2][x2];
+      board[x1][y1] = board[x2][y2];
       board[x2][y2] = EMPTY;
-      opponentChipsLocations.findNode(x2,y2,color).updateCoordinates(x1,y1);
+      opponentChipsLocations.findNode(x2, y2, color).updateCoordinates(x1, y1);
     } else {
-      System.out.println("ERROR: Chip cannot be moved. There are still less than ten chips on the board.");
+      System.out
+          .println("ERROR: Chip cannot be moved. There are still less than ten chips on the board.");
     }
   }
 
@@ -100,19 +104,22 @@ public class Board {
   private void removeChip(int x, int y, int color) {
     board[x][y] = EMPTY;
     if (color == myColor) {
-      chipsLocations.remove(chipsLocations.findNode(x,y,color));
+      chipsLocations.remove(chipsLocations.findNode(x, y, color));
     } else if (color == opponentColor) {
-      opponentChipsLocations.remove(chipsLocations.findNode(x,y,color));
+      opponentChipsLocations.remove(chipsLocations.findNode(x, y, color));
     }
   }
-  
+
   /**
-   *  Get the valued stored in cell (x, y).
-   *  @param x is the x-index.
-   *  @param y is the y-index.
-   *  @return the stored value (between 0 and 2).
-   *  @exception ArrayIndexOutOfBoundsException is thrown if an invalid index
-   *  is given.
+   * Get the valued stored in cell (x, y).
+   * 
+   * @param x
+   *          is the x-index.
+   * @param y
+   *          is the y-index.
+   * @return the stored value (between 0 and 2).
+   * @exception ArrayIndexOutOfBoundsException
+   *              is thrown if an invalid index is given.
    */
 
   public int elementAt(int x, int y) {
@@ -120,113 +127,48 @@ public class Board {
   }
 
   /*
-   *  isValidMove() returns a boolean indicating whether or not a given Move is valid or not.
-	 *  @param m is the given Move, @param color is the color of the player making the Move
-	 */
-	public boolean isValidMove(Move m, int color) {
-		boolean isValidPlace;
-		if (color==BLACK) {
-			isValidPlace = !(m.x1==0) && !(m.x1==7) && board[m.x1][m.y1]==EMPTY;
-		} else {
-			isValidPlace = !(m.y1==0) && !(m.y1==7) && board[m.x1][m.y1]==EMPTY;
-		}
-		if (!isValidPlace) {
-			return false;
-		}
-		int adjacents[] = adjacents(m.x1, m.y1);
-		int adjCount = adjacentCount(adjacents, color);
-		if (adjCount>=2) {
-			return false;
-		} else if (adjCount==1) {
-			int[][] adjCoordinates = adjacentCoordinates(m.x1, m.y1);
-			int[] adjColor = new int[2];
-			for (int[] adj: adjCoordinates) {
-				if (board[adj[0]][adj[1]]==color) {
-					adjColor[0] = adj[0];
-					adjColor[1] = adj[1];
-				}
-			}
-			if (adjacentCount(adjacents(adjColor[0], adjColor[1]), color)>=1) {
-				return false;
-			}
-		}
-		return true;
-	}
-  
-  /*
-	 *  adjacentCoordinates() is a method that returns a double array of ints, representing the 
-	 *  coordinates of the spaces next to the given x and y, the indices of the first array representing 
-	 *  the different coordinates, and the second array representing the x and y values.
-	 *  @param cx and cy are the given x and y values.
-	 */
-	
-	private int[][] adjacentCoordinates(int cx, int cy) {
-		if (cx==0) {
-			int[][] coords = {{cx, cy-1}, {cx+1, cy-1}, {cx+1, cy}, {cx+1, cy+1}, {cx, cy+1}};
-			return coords;
-		} else if (cx==7) {
-			int[][] coords = {{cx, cy-1}, {cx, cy+1}, {cx-1, cy+1}, {cx-1, cy}, {cx-1, cy-1}};
-			return coords;
-		} else if (cy==0) {
-			int[][] coords = {{cx+1 ,cy}, {cx+1, cy+1}, {cx, cy+1}, {cx-1, cy+1}, {cx-1, cy}};
-			return coords;
-		} else if (cy==7) {
-			int[][] coords = {{cx, cy-1}, {cx+1, cy-1}, {cx+1, cy}, {cx-1, cy}, {cx-1, cy-1}};
-			return coords;
-		} else {
-			int[][] coords = { 	{cx, cy-1}, {cx+1, cy-1}, {cx+1, cy}, {cx+1, cy+1}, 
-							   	{cx, cy+1}, {cx-1, cy+1}, {cx-1, cy}, {cx-1, cy-1}};
-			return coords;
-		}
-	}
-	
-	/*
-	 *  adjacents() is a helper function for isValidMove(). 
-	 *  it returns an array of ints that are adjacent (up, down, left, right, all four diagonals)
-	 *   to a location given by two coordinates. 
-	 *  @param cx and @param cy are the coordinates given.
-	 */
-
-	private int[] adjacents(int cx, int cy) {
-		int[][] adjc = adjacentCoordinates(cx, cy);
-		int[] adjacents;
-		if (cx==0 || cx==7 || cy==0 || cy==7) {
-			int[] sub_adjacents = {board[adjc[0][0]][adjc[0][1]], board[adjc[1][0]][adjc[1][1]], 
-					board[adjc[2][0]][adjc[2][1]], board[adjc[3][0]][adjc[3][1]], 
-				    board[adjc[4][0]][adjc[4][1]]};
-			adjacents = sub_adjacents;
-		} else {
-			int[] mid_adjacents = {board[adjc[0][0]][adjc[0][1]], board[adjc[1][0]][adjc[1][1]], 
-					board[adjc[2][0]][adjc[2][1]], board[adjc[3][0]][adjc[3][1]], 
-				    board[adjc[4][0]][adjc[4][1]], board[adjc[5][0]][adjc[5][1]],
-				    board[adjc[6][0]][adjc[6][1]], board[adjc[7][0]][adjc[7][1]]};
-			adjacents = mid_adjacents;
-		}
-		return adjacents;
-	}
-  
-  /*
-	 *  adjacentCount() is yet another helper method for isValidMove().
-	 *  this method returns the number of adjacent Chips of the same color. 
-	 *  @param adjacents is the Chip array of adjacent Chips, @param color is the color we compare to.
-	 */
-
-	private int adjacentCount(int[] adjacents, int color) {
-		int adjCount = 0;
-		for (int c: adjacents) {
-			if (c==color) {
-				adjCount++;				
-			}
-		}
-		return adjCount;
-	}
+   * isValidMove() returns a boolean indicating whether or not a given Move is
+   * valid or not.
+   * @param m is the given Move, @param color is the color of the player making
+   * the Move
+   */
+  public boolean isValidMove(Move m, int color) {
+    boolean isValidPlace;
+    if (color == BLACK) {
+      isValidPlace = !(m.x1 == 0) && !(m.x1 == 7) && board[m.x1][m.y1] == EMPTY;
+    } else {
+      isValidPlace = !(m.y1 == 0) && !(m.y1 == 7) && board[m.x1][m.y1] == EMPTY;
+    }
+    if (!isValidPlace) {
+      return false;
+    }
+    int adjacents[] = adjacents(m.x1, m.y1);
+    int adjCount = adjacentCount(adjacents, color);
+    if (adjCount >= 2) {
+      return false;
+    } else if (adjCount == 1) {
+      int[][] adjCoordinates = adjacentCoordinates(m.x1, m.y1);
+      int[] adjColor = new int[2];
+      for (int[] adj : adjCoordinates) {
+        if (board[adj[0]][adj[1]] == color) {
+          adjColor[0] = adj[0];
+          adjColor[1] = adj[1];
+        }
+      }
+      if (adjacentCount(adjacents(adjColor[0], adjColor[1]), color) >= 1) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   /*
    * countNetworks() returns an int-array with information about possible
    * networks that are forming. For example, if there are 7 chips placed on the
    * board, with 2 potential networks: one with 3 linked chips and the other
    * with 4 linked chips, then the array to return will look like this [3,4].
-   * !!!PLEASE USE THE CHIPLISTS I HAVE PREPARED FOR YOU (chipLocations && opponentChipLocations)!!!
+   * !!!PLEASE USE THE CHIPLISTS I HAVE PREPARED FOR YOU (chipLocations &&
+   * opponentChipLocations)!!!
    */
   public int[] countNetworks() {
     // code here
@@ -251,9 +193,9 @@ public class Board {
    * move. @param m is the move to be performed
    */
   public void performMove(Move m, int color) {
-    if (m.moveKind == 1) {
-      addChip(m.x1, m.x2, color);
-    } else if (m.moveKind == 2) {
+    if (m.moveKind == Move.ADD) {
+      addChip(m.x1, m.y1, color);
+    } else if (m.moveKind == Move.STEP) {
       moveChip(m.x1, m.y1, m.x2, m.y2, color);
     } else {
       return;
@@ -283,7 +225,7 @@ public class Board {
     MoveList validMoves = new MoveList();
     ChipList chipList = null;
     if (color == myColor) {
-      chipList = chipsLocations; 
+      chipList = chipsLocations;
     } else if (color == opponentColor) {
       chipList = opponentChipsLocations;
     }
@@ -297,8 +239,8 @@ public class Board {
         }
       }
     } else {
-      int[][] emptyCells = new int[DIMENSION][DIMENSION];
-      for (int i = 0; i < DIMENSION; i++ ) {
+      int[][] emptyCells = new int[DIMENSION * DIMENSION][2];
+      for (int i = 0; i < DIMENSION; i++) {
         for (int j = 0; j < DIMENSION; j++) {
           if (board[i][j] == EMPTY) {
             emptyCells[i * DIMENSION + j][0] = i;
@@ -309,12 +251,15 @@ public class Board {
       while (chipList.hasNext()) {
         ChipNode c = chipList.nextChip();
         for (int[] cell : emptyCells) {
-          Move newMove = new Move(cell[0], cell[1], c.xpos, c.ypos);
-          if (isValidMove(newMove, color)) {
-            validMoves.insertFront(newMove);
+          if (cell != null) {
+            Move newMove = new Move(cell[0], cell[1], c.xpos, c.ypos);
+            if (isValidMove(newMove, color)) {
+              validMoves.insertFront(newMove);
+            }
           }
         }
-      }      
+      }
+      System.out.println(validMoves);
     }
     return validMoves;
   }
@@ -332,7 +277,7 @@ public class Board {
 
   public boolean equals(Object board) {
     try {
-     Board b = (Board) board;
+      Board b = (Board) board;
       if (hashCode() == b.hashCode()) {
         return true;
       } else {
@@ -348,20 +293,118 @@ public class Board {
     int pow = DIMENSION * DIMENSION - 1;
     for (int i = 0; i < DIMENSION; i++) {
       for (int j = 0; j < DIMENSION; j++) {
-        hashVal += elementAt(i,j) * Math.pow(3,pow) % 16908799;
-        pow --;
+        hashVal += elementAt(i, j) * Math.pow(3, pow) % 16908799;
+        pow--;
       }
     }
     return hashVal;
-  } 
+  }
 
-}
+  public String toString() {
+    String border = "-----------------------------------------\n";
+    String b = "";
+    for (int[] x : transpose()) {
+      for (int y : x) {
+        if (y == BLOCKED) {
+          b += "|||||";
+        } else if (y == EMPTY) {
+          b += "|    ";
+        } else if (y == BLACK) {
+          b += "|  B ";
+        } else if (y == WHITE) {
+          b += "|  W ";
+        }
+      }
+      b += "|\n" + border;
+    }
+    return border + b;
+  }
+
+  private int[][] transpose() {
+    int[][] t = new int[DIMENSION][DIMENSION];
+    for (int i = 0; i < DIMENSION; i++) {
+      for (int j = 0; j < DIMENSION; j++) {
+        t[j][i] = board[i][j];
+      }
+    }
+    return t;
+  }
 
   /******************************************
-   *                                        *
-   *         HELPER METHODS BELOW           *
-   *                                        *
-   ******************************************
+   * * HELPER METHODS BELOW * *
    */
- 
- 
+
+  /*
+   * adjacentCoordinates() is a method that returns a double array of ints,
+   * representing the coordinates of the spaces next to the given x and y, the
+   * indices of the first array representing the different coordinates, and the
+   * second array representing the x and y values.
+   * @param cx and cy are the given x and y values.
+   */
+
+  private int[][] adjacentCoordinates(int cx, int cy) {
+    if (cx == 0) {
+      int[][] coords = { { cx, cy - 1 }, { cx + 1, cy - 1 }, { cx + 1, cy }, { cx + 1, cy + 1 },
+          { cx, cy + 1 } };
+      return coords;
+    } else if (cx == 7) {
+      int[][] coords = { { cx, cy - 1 }, { cx, cy + 1 }, { cx - 1, cy + 1 }, { cx - 1, cy },
+          { cx - 1, cy - 1 } };
+      return coords;
+    } else if (cy == 0) {
+      int[][] coords = { { cx + 1, cy }, { cx + 1, cy + 1 }, { cx, cy + 1 }, { cx - 1, cy + 1 },
+          { cx - 1, cy } };
+      return coords;
+    } else if (cy == 7) {
+      int[][] coords = { { cx, cy - 1 }, { cx + 1, cy - 1 }, { cx + 1, cy }, { cx - 1, cy },
+          { cx - 1, cy - 1 } };
+      return coords;
+    } else {
+      int[][] coords = { { cx, cy - 1 }, { cx + 1, cy - 1 }, { cx + 1, cy }, { cx + 1, cy + 1 },
+          { cx, cy + 1 }, { cx - 1, cy + 1 }, { cx - 1, cy }, { cx - 1, cy - 1 } };
+      return coords;
+    }
+  }
+
+  /*
+   * adjacents() is a helper function for isValidMove(). it returns an array of
+   * ints that are adjacent (up, down, left, right, all four diagonals) to a
+   * location given by two coordinates.
+   * @param cx and @param cy are the coordinates given.
+   */
+
+  private int[] adjacents(int cx, int cy) {
+    int[][] adjc = adjacentCoordinates(cx, cy);
+    int[] adjacents;
+    if (cx == 0 || cx == 7 || cy == 0 || cy == 7) {
+      int[] sub_adjacents = { board[adjc[0][0]][adjc[0][1]], board[adjc[1][0]][adjc[1][1]],
+          board[adjc[2][0]][adjc[2][1]], board[adjc[3][0]][adjc[3][1]],
+          board[adjc[4][0]][adjc[4][1]] };
+      adjacents = sub_adjacents;
+    } else {
+      int[] mid_adjacents = { board[adjc[0][0]][adjc[0][1]], board[adjc[1][0]][adjc[1][1]],
+          board[adjc[2][0]][adjc[2][1]], board[adjc[3][0]][adjc[3][1]],
+          board[adjc[4][0]][adjc[4][1]], board[adjc[5][0]][adjc[5][1]],
+          board[adjc[6][0]][adjc[6][1]], board[adjc[7][0]][adjc[7][1]] };
+      adjacents = mid_adjacents;
+    }
+    return adjacents;
+  }
+
+  /*
+   * adjacentCount() is yet another helper method for isValidMove(). this method
+   * returns the number of adjacent Chips of the same color.
+   * @param adjacents is the Chip array of adjacent Chips, @param color is the
+   * color we compare to.
+   */
+
+  private int adjacentCount(int[] adjacents, int color) {
+    int adjCount = 0;
+    for (int c : adjacents) {
+      if (c == color) {
+        adjCount++;
+      }
+    }
+    return adjCount;
+  }
+}

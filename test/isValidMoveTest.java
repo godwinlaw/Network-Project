@@ -53,6 +53,12 @@ public class isValidMoveTest {
     b.addChip(1,6,opponentColor);
     b.addChip(4,7,opponentColor);
     
+    b.addChip(2, 6, opponentColor);
+    b.addChip(1, 4, opponentColor);
+    
+    System.out.println("The list of valid moves is:");
+    System.out.println(b.validMoves(opponentColor));
+    
     Move m1 = new Move(1,0);
     Move m2 = new Move(2,0);
     Move m3 = new Move(4,0);
@@ -75,7 +81,7 @@ public class isValidMoveTest {
     Move m20 = new Move(2,5);
     Move m21 = new Move(5,6);
     
-    System.out.println("Should return false: " + b.isValidMove(m1, opponentColor));
+    /*System.out.println("Should return false: " + b.isValidMove(m1, opponentColor));
     System.out.println("Should return false: " + b.isValidMove(m2, opponentColor));
     System.out.println("Should return false: " + b.isValidMove(m3, opponentColor));
     System.out.println("Should return false: " + b.isValidMove(m4, opponentColor));
@@ -95,12 +101,9 @@ public class isValidMoveTest {
     System.out.println("Should return false: " + b.isValidMove(m18, opponentColor));
     System.out.println("Should return false: " + b.isValidMove(m19, opponentColor));
     System.out.println("Should return false: " + b.isValidMove(m20, opponentColor));
-    System.out.println("Should return false: " + b.isValidMove(m21, opponentColor));
+    System.out.println("Should return false: " + b.isValidMove(m21, opponentColor));*/
     
-    Move m22 = new Move(2,7);
-    Move m23 = new Move(6,0);
-
-    System.out.println("Should return true: " + b.isValidMove(m22, opponentColor));
-    System.out.println("Should return true: " + b.isValidMove(m23, opponentColor));
+    System.out.println(b);
+    b.validMoves(opponentColor);
   }
 }

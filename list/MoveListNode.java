@@ -46,4 +46,5 @@ public class MoveListNode {
   public MoveListNode prev() {
     return prev;
   }
+  
 }
