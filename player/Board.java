@@ -125,59 +125,256 @@ public class Board {
   public int elementAt(int x, int y) {
     return board[x][y];
   }
+  
+  /*
+   *  isValidPlace() is a method that returns true if a chip of a certain color can be placed in 
+	 *  the place specified, regardless of clusters of different chips.
+	 *  @param x and y determine the coordinates of the place, @param color is the color we're considering
+	 */
+	
+	public boolean isValidPlace(int x, int y, int color) {
+		if (color==BLACK) {
+			return !(x==0) && !(x==7) && board[x][y]==EMPTY;
+		} else {
+			return !(y==0) && !(y==7) && board[x][y]==EMPTY;
+		}
+	}
+
+	/*
+	 *  isValidMove() returns a boolean indicating whether or not a given Move is valid or not.
+	 *  @param m is the given Move, @param color is the color of the player making the Move
+	 */
+	
+	public boolean isValidMove(Move m, int color) {
+		if (!isValidPlace(m.x1, m.y1, color)) {
+			return false;
+		}
+		int prev = board[m.x2][m.y2];
+		if (m.moveKind==Move.STEP) {
+			board[m.x2][m.y2] = EMPTY; 
+		}
+		int adjacents[] = adjacents(m.x1, m.y1);
+		int adjCount = adjacentCount(adjacents, color);
+		if (adjCount>=2) {
+			board[m.x2][m.y2] = prev; 
+			return false;
+		} else if (adjCount==1) {
+			int[][] adjCoordinates = adjacentCoordinates(m.x1, m.y1);
+			int[] adjColor = new int[2];
+			for (int[] adj: adjCoordinates) {
+				if (board[adj[0]][adj[1]]==color) {
+					adjColor[0] = adj[0];
+					adjColor[1] = adj[1];
+				}
+			}
+			if (adjacentCount(adjacents(adjColor[0], adjColor[1]), color)>=1) {
+				board[m.x2][m.y2] = prev; 
+				return false;
+			}
+		}
+		board[m.x2][m.y2] = prev; 
+		return true;
+	}
 
   /*
-   * isValidMove() returns a boolean indicating whether or not a given Move is
-   * valid or not.
-   * @param m is the given Move, @param color is the color of the player making
-   * the Move
-   */
-  public boolean isValidMove(Move m, int color) {
-    boolean isValidPlace;
-    if (color == BLACK) {
-      isValidPlace = !(m.x1 == 0) && !(m.x1 == 7) && board[m.x1][m.y1] == EMPTY;
-    } else {
-      isValidPlace = !(m.y1 == 0) && !(m.y1 == 7) && board[m.x1][m.y1] == EMPTY;
-    }
-    if (!isValidPlace) {
-      return false;
-    }
-    int adjacents[] = adjacents(m.x1, m.y1);
-    int adjCount = adjacentCount(adjacents, color);
-    if (adjCount >= 2) {
-      return false;
-    } else if (adjCount == 1) {
-      int[][] adjCoordinates = adjacentCoordinates(m.x1, m.y1);
-      int[] adjColor = new int[2];
-      for (int[] adj : adjCoordinates) {
-        if (board[adj[0]][adj[1]] == color) {
-          adjColor[0] = adj[0];
-          adjColor[1] = adj[1];
-        }
-      }
-      if (adjacentCount(adjacents(adjColor[0], adjColor[1]), color) >= 1) {
-        return false;
-      }
-    }
-    return true;
-  }
+	 * countNetworks() returns an int-array with information about possible
+	 * networks that are forming. For example, if there are 7 chips placed on the
+	 * board, with 2 potential networks: one with 3 linked chips and the other
+	 * with 4 linked chips, then the array to return will look like this [3,4].
+	 */
+	public int[] countNetworks(int color) {
+		int count = 0, index = 0;
+		int[][] none = {};
+		if (color==WHITE) {
+			for (int i: board[0]) {
+				if (i==color) {count++;}
+			}
+			int[][] start = new int[count][2];
+			for (int i=1; i<DIMENSION-1; i++) {
+				if (board[0][i]==color) {
+					start[index][0] = 0;
+					start[index++][1] = i;
+				}
+			}
+			return countConnections(start, none, color);
+		} else {
+			for (int[] i: board) {
+				if (i[0]==color) {count++;}
+			}
+			int[][] start = new int[count][2];
+			for (int i=1; i<DIMENSION-1; i++) {
+				if (board[i][0]==color) {
+					start[index][0] = i;
+					start[index++][1] = 0;
+				}
+			}
+			return countConnections(start, none, color);
+		}
+	}
+	
+	/*
+	 *  countConnections() is a recursive method that constructs the array for countNetworks
+	 *  @param current is the current set of coordinates we're making connections with, 
+	 *  @param used is the chips we already used in the network being constructed, and
+	 *  @param color is the color of the player we're considering.
+	 */
+	
+	public int[] countConnections(int[][] current, int[][] used, int color) {
+		int[] combinedConnections = {};
+		for (int[] coordinates: current) {
+			int[][] connections = connectionCoordinates(coordinates[0], coordinates[1], color);
+			connections = subtract(connections, used);
+			int[] path;
+			if (connections.length==0) {
+				int[] end_path = {1};
+				path = end_path;
+			} else {
+				int[][] newUsed = doubleMerge(current, used);
+				int[] open_path = countConnections(connections, newUsed, color);
+				for (int i=0; i<open_path.length; i++) {
+					open_path[i]++;
+				}
+				path = open_path;
+			}
+			combinedConnections = singleMerge(combinedConnections, path);
+		}
+		return combinedConnections;
+	}
+	
+	/*
+	 *  singleMerge() merges two int arrays.
+	 *  @param first is the first array, @param second is the second array we want to combine.
+	 */
+	
+	public static int[] singleMerge(int[] first, int[] second) {
+		int[] merged = new int[first.length+second.length];
+		int index = 0;
+		for (int i=0; i<first.length; i++) {
+			merged[index++] = first[i];
+		}
+		for (int j=0; j<second.length; j++) {
+			merged[index++] = second[j];
+		}
+		return merged;
+	}
+	
+	/*
+	 * doubleMerge() merges two int[] arrays. 0 index represents the x coordinate, 1 corresponds to y.
+	 * @param first is the first array, @param second is the second array we want to combine
+	 */
+	
+	public static int[][] doubleMerge(int[][] first, int[][] second) {
+		int[][] merged = new int[first.length+second.length][2];
+		int index = 0;
+		for (int i=0; i<first.length; i++) {
+			merged[index][0] = first[i][0];
+			merged[index++][1] = first[i][1];
+		}
+		for (int j=0; j<second.length; j++) {
+			merged[index][0] = second[j][0];
+			merged[index++][1] = second[j][1];
+		}
+		return merged;
+	}
+	
+	/*
+	 *  subtract() subtracts the coordinates in the second double array of ints from the first.
+	 *  @param first is the array we want to subtract from, @param second has the coordinates we want
+	 *  to subtract
+	 */
+	
+	public static int[][] subtract(int[][] first, int[][] second) {
+		int subtractLength = first.length;
+		for (int i=0; i<first.length; i++) {
+			for (int j=0; j<second.length; j++) {
+				if (first[i][0]==second[j][0] && first[i][1]==second[j][1]) {
+					subtractLength--;
+				}
+			}
+		}
+		int[][] subtracted = new int[subtractLength][2];
+		int index = 0;
+		for (int i=0; i<first.length; i++) {
+			boolean inSecond = false;
+			for (int j=0; j<second.length; j++) {
+				if (first[i][0]==second[j][0] && first[i][1]==second[j][1]) {
+					inSecond = true;
+				}
+			}
+			if (!inSecond) {
+				subtracted[index][0] = first[i][0];
+				subtracted[index++][1] = first[i][1];
+			}
+		}
+		return subtracted;
+	}
+	
+	/*
+	 *  connectionCoordinates() returns a double array of coordinates of chips that can be connected
+	 *  to from the space and color determined by the given x, y, and color
+	 *  @param x is the given x, @param y is the given y, @color is the color of the chips we want to 
+	 *  connect to
+	 */
+	
+	public int[][] connectionCoordinates(int x, int y, int color) {
+		int coordinateCount = 0;
+		int opp;
+		if (color==BLACK) {
+			opp = WHITE;
+		} else {
+			opp = BLACK;
+		}
+		int[][] coordinates = {	dirCoords(x, y, 0, -1, color, opp), dirCoords(x, y, 1, -1, color, opp),
+								dirCoords(x, y, 1, 0, color, opp), dirCoords(x, y, 1, 1, color, opp),
+								dirCoords(x, y, 0, 1, color, opp), dirCoords(x, y, -1, 1, color, opp),
+								dirCoords(x, y, -1, 0, color, opp), dirCoords(x, y, -1, -1, color, opp)};
+		for (int[] coord: coordinates) {
+			if (coord!=null) {
+				coordinateCount++;
+			}
+		}
+		int[][] shortenedCoordinates = new int[coordinateCount][2];
+		int index = 0;
+		for (int[] coord: coordinates) {
+			if (coord!=null) {
+				shortenedCoordinates[index][0] = coord[0];
+				shortenedCoordinates[index++][1] = coord[1];
+			}
+		}
+		return shortenedCoordinates;
+	}
+	
+	/*
+	 *  dirCoords() returns the coordinates of the nearest space in a given direction containing the 
+	 *  same color. returns null if the method reaches the end of the board or reaches a space that's 
+	 *  blocked or of the opposing player.
+	 *  @param cx and cy determine the starting coordinates, @param hMod and vMod indicate which
+	 *  direction we are considering, @param color is this player's color, @param oppColor is the 
+	 *  opponent's color.
+	 */
+	
+	public int[] dirCoords(int cx, int cy, int hMod, int vMod, int color, int oppColor) {
+		while (true) {
+			cx+=hMod;
+			cy+=vMod;
+			if (cx<0 || cy<0 || cx>7 || cy>7 || (color==BLACK && cy==7) || (color==WHITE && cx==7) ||
+					(color==BLACK && cy==0) || (color==WHITE && cx==0)) {
+				return null;
+			}
+			int compare = board[cx][cy];
+			if (compare==color) {
+				int[] coordinates = {cx, cy};
+				return coordinates;
+			} else if (compare==oppColor || compare==BLOCKED) {
+				return null;
+			}
+		}
+	}
 
-  /*
-   * countNetworks() returns an int-array with information about possible
-   * networks that are forming. For example, if there are 7 chips placed on the
-   * board, with 2 potential networks: one with 3 linked chips and the other
-   * with 4 linked chips, then the array to return will look like this [3,4].
-   * !!!PLEASE USE THE CHIPLISTS I HAVE PREPARED FOR YOU (chipLocations &&
-   * opponentChipLocations)!!!
-   */
-  public int[] countNetworks() {
-    // code here
-    return null;
-  }
 
   /*
    * hasValidNetwork() returns a boolean indicating whether there is a existing
-   * network on the board.
+   * network on the board. THIS DOESN'T WORK CURRENTLY.
    */
   public boolean hasValidNetwork() {
     for (int i : countNetworks()) {
