@@ -190,6 +190,51 @@ public class Board {
 		board[m.x2][m.y2] = prev; 
 		return true;
 	}
+	
+		
+	/*
+	 *  starting() returns a double array of the starting chips of the player of the given color
+	 *  @param color is the color of the player in consideration
+	 */
+	
+	public int[][] starting(int color) {
+		int count = 0, index = 0;
+		int[][] start;
+		if (color==WHITE) {
+			for (int i: board[0]) {
+				if (i==color) {count++;}
+			}
+			start = new int[count][2];
+			for (int i=1; i<DIMENSION-1; i++) {
+				if (board[0][i]==color) {
+					start[index][0] = 0;
+					start[index++][1] = i;
+				}
+			}
+		} else {
+			for (int[] i: board) {
+				if (i[0]==color) {count++;}
+			}
+			start = new int[count][2];
+			for (int i=1; i<DIMENSION-1; i++) {
+				if (board[i][0]==color) {
+					start[index][0] = i;
+					start[index++][1] = 0;
+				}
+			}
+		}
+		return start;
+	}
+	
+	public static boolean[] addBoolean(boolean[] booleans, boolean addend) {
+		boolean[] added = new boolean[booleans.length+1];
+		for (int i=0; i<booleans.length; i++) {
+			added[i] = booleans[i];
+		}
+		added[added.length-1] = addend;
+		return added;
+	}
+	
 
   /*
 	 * countNetworks() returns an int-array with information about possible
