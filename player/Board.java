@@ -127,6 +127,21 @@ public class Board {
   }
   
   /*
+   *  pairCount() counts the number of connected 
+   */
+ 	public int pairCount(int color) {
+		int pairConnectionCount = 0;
+		for (int i=0; i<DIMENSION; i++) {
+			for (int j=0; j<DIMENSION; j++) {
+				if (board[i][j]==color) {
+					pairConnectionCount+=connectionCoordinates(i, j, color).length;
+				}
+			}
+		}
+		return pairConnectionCount;
+	}
+  
+  /*
    *  isValidPlace() is a method that returns true if a chip of a certain color can be placed in 
 	 *  the place specified, regardless of clusters of different chips.
 	 *  @param x and y determine the coordinates of the place, @param color is the color we're considering
@@ -282,13 +297,25 @@ public class Board {
 	 *  @param first is the array we want to subtract from, @param second has the coordinates we want
 	 *  to subtract
 	 */
-	
 	public static int[][] subtract(int[][] first, int[][] second) {
+		int[][] passed = new int[second.length][2];
+		int passedIndex = 0;
 		int subtractLength = first.length;
 		for (int i=0; i<first.length; i++) {
 			for (int j=0; j<second.length; j++) {
 				if (first[i][0]==second[j][0] && first[i][1]==second[j][1]) {
+					boolean skip = false;
+					for (int[] p: passed) {
+						if (p!=null && p[0]==second[j][0] && p[1]==second[j][1]) {
+							skip = true;
+						}
+					}
+					if (skip) {
+						continue;
+					}
 					subtractLength--;
+					passed[passedIndex][0] = second[j][0];
+					passed[passedIndex++][1] = second[j][1];
 				}
 			}
 		}
