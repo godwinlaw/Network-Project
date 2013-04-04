@@ -3,7 +3,7 @@ package player;
 import list.*;
 
 /*
- * The Board Class (2D int array) This is used as an internal representation of
+ * The Board Class (Daniel's) This is used as an internal representation of
  * the Network game board for the MachinePlayer.
  */
 
@@ -28,6 +28,9 @@ public class Board {
   private ChipList chipsLocations;
   private ChipList opponentChipsLocations;
 
+  public int myChips;
+  public int opponentChips;
+
   /*
    * The default constructor Creates a 8 x 8 board holding Chip objects. The
    * corners of the board are initialized to have "fake" Chip objects (See
@@ -40,7 +43,7 @@ public class Board {
         board[i][j] = EMPTY;
       }
     }
-    board[0][0] = board[0][7] = board[7][0] = board[7][7] = BLOCKED;
+    board[0][0] = board[0][DIMENSION - 1] = board[DIMENSION - 1][0] = board[DIMENSION - 1][DIMENSION - 1] = BLOCKED;
     if (playerColor == BLACK) {
       this.myColor = BLACK;
       opponentColor = WHITE;
@@ -48,6 +51,9 @@ public class Board {
       this.myColor = WHITE;
       opponentColor = BLACK;
     }
+    myChips = 0;
+    opponentChips = 0;
+
     chipsLocations = new ChipList(myColor);
     opponentChipsLocations = new ChipList(opponentColor);
   }
@@ -61,12 +67,13 @@ public class Board {
    */
   public void addChip(int x, int y, int color) {
     if (color == myColor && chipsLocations.length() < 10) {
-      System.out.println("(" + x + "," + y + ")");
       chipsLocations.insertFront(x, y, color);
       board[x][y] = myColor;
+      myChips ++;
     } else if (color == opponentColor && opponentChipsLocations.length() < 10) {
       opponentChipsLocations.insertFront(x, y, color);
       board[x][y] = opponentColor;
+      opponentChips ++;
     } else {
       System.out.println("ERROR: Cannot add chip. Board already contains twenty chips.");
     }
@@ -79,20 +86,21 @@ public class Board {
    * @param x2 and @param y2 are the old coordinates of the Chip.
    * @param color is the color of the chip.
    */
-  private void moveChip(int x1, int y1, int x2, int y2, int color) {
-    System.out.println("MachinePlayer chips: " + chipsLocations);
-    System.out.println("HumanPlayer chips: " + opponentChipsLocations);
-    if (color == myColor && chipsLocations.length() == 10) {
+  public void moveChip(int x1, int y1, int x2, int y2, int color) {
+    //System.out.println("MachinePlayer chips: " + chipsLocations);
+    //System.out.println("HumanPlayer chips: " + opponentChipsLocations);
+    //if (color == myColor && chipsLocations.length() == 10) {
+    if (color == myColor) {
       board[x1][y1] = board[x2][y2];
       board[x2][y2] = EMPTY;
-      chipsLocations.findNode(x2, y2, color).updateCoordinates(x1, y1);
-    } else if (color == opponentColor && opponentChipsLocations.length() == 10) {
+      //chipsLocations.findNode(x2, y2, color).updateCoordinates(x1, y1);
+    //} else if (color == opponentColor && opponentChipsLocations.length() == 10) {
+    } else if (color == opponentColor) {
       board[x1][y1] = board[x2][y2];
       board[x2][y2] = EMPTY;
       opponentChipsLocations.findNode(x2, y2, color).updateCoordinates(x1, y1);
     } else {
-      System.out
-          .println("ERROR: Chip cannot be moved. There are still less than ten chips on the board.");
+      System.out.println("ERROR: Chip cannot be moved. Less than ten chips on the board.");
     }
   }
 
@@ -102,6 +110,11 @@ public class Board {
    * exists.
    */
   private void removeChip(int x, int y, int color) {
+    if (color == myColor) {
+      myChips --;
+    } else if (color == opponentColor) {
+      opponentChips --;
+    }
     board[x][y] = EMPTY;
     if (color == myColor) {
       chipsLocations.remove(chipsLocations.findNode(x, y, color));
@@ -155,6 +168,7 @@ public class Board {
 		}
 	}
 
+<<<<<<< HEAD
 	/*
 	 *  isValidMove() returns a boolean indicating whether or not a given Move is valid or not.
 	 *  @param m is the given Move, @param color is the color of the player making the Move
@@ -235,6 +249,43 @@ public class Board {
 		return added;
 	}
 	
+=======
+  /*
+   *  isValidMove() returns a boolean indicating whether or not a given Move is valid or not.
+   *  @param m is the given Move, @param color is the color of the player making the Move
+   */
+  
+  public boolean isValidMove(Move m, int color) {
+    if (!isValidPlace(m.x1, m.y1, color)) {
+      return false;
+    }
+    int prev = board[m.x2][m.y2];
+    if (m.moveKind==Move.STEP) {
+      board[m.x2][m.y2] = EMPTY; 
+    }
+    int adjacents[] = adjacents(m.x1, m.y1);
+    int adjCount = adjacentCount(adjacents, color);
+    if (adjCount>=2) {
+      board[m.x2][m.y2] = prev; 
+      return false;
+    } else if (adjCount==1) {
+      int[][] adjCoordinates = adjacentCoordinates(m.x1, m.y1);
+      int[] adjColor = new int[2];
+      for (int[] adj: adjCoordinates) {
+        if (board[adj[0]][adj[1]]==color) {
+          adjColor[0] = adj[0];
+          adjColor[1] = adj[1];
+        }
+      }
+      if (adjacentCount(adjacents(adjColor[0], adjColor[1]), color)>=1) {
+        board[m.x2][m.y2] = prev; 
+        return false;
+      }
+    }
+    board[m.x2][m.y2] = prev; 
+    return true;
+  }
+>>>>>>> .
 
   /*
 	 * countNetworks() returns an int-array with information about possible
@@ -546,28 +597,27 @@ public class Board {
    */
   public void undoMove(Move m, int color) {
     if (m.moveKind == 1) {
-      removeChip(m.x1, m.y2, color);
+      removeChip(m.x1, m.y1, color);
     } else if (m.moveKind == 2) {
       moveChip(m.x2, m.y2, m.x1, m.y1, color);
     }
   }
-
   /*
    * validMoves() returns an array of Moves that are valid for a given board. If
    * the board contains less than 20 chips, the method returns ADD moves that
    * can be made to the board. If the board contains more than 20 chips, the
    * method returns STEP moves that can be made to the board.
    */
-  // NEEDS TO BE CHECKED FOR BUGS
   public MoveList validMoves(int color) {
     MoveList validMoves = new MoveList();
-    ChipList chipList = null;
+    int numOfChips = 0;
     if (color == myColor) {
-      chipList = chipsLocations;
+      numOfChips = myChips;
     } else if (color == opponentColor) {
-      chipList = opponentChipsLocations;
+      numOfChips = opponentChips;
     }
-    if (chipList.length() < 10) {
+    
+    if (numOfChips < 10) {
       for (int i = 0; i < DIMENSION; i++) {
         for (int j = 0; j < DIMENSION; j++) {
           Move newMove = new Move(i, j);
@@ -577,27 +627,30 @@ public class Board {
         }
       }
     } else {
-      int[][] emptyCells = new int[DIMENSION * DIMENSION][2];
+      int[][] emptyCells = new int[DIMENSION * DIMENSION][];
       for (int i = 0; i < DIMENSION; i++) {
         for (int j = 0; j < DIMENSION; j++) {
           if (board[i][j] == EMPTY) {
+            emptyCells[i * DIMENSION + j] = new int[2];
             emptyCells[i * DIMENSION + j][0] = i;
             emptyCells[i * DIMENSION + j][1] = j;
           }
         }
       }
-      while (chipList.hasNext()) {
-        ChipNode c = chipList.nextChip();
-        for (int[] cell : emptyCells) {
-          if (cell != null) {
-            Move newMove = new Move(cell[0], cell[1], c.xpos, c.ypos);
-            if (isValidMove(newMove, color)) {
-              validMoves.insertFront(newMove);
+      for (int i = 0; i < DIMENSION; i++) {
+        for (int j = 0; j < DIMENSION; j++) {
+          if (board[i][j] == color) {
+            for (int[] cell : emptyCells) {
+              if (cell != null) {
+                Move newMove = new Move(cell[0], cell[1], i, j);
+                if (isValidMove(newMove, color)) {
+                  validMoves.insertFront(newMove);
+                }
+              }
             }
           }
         }
       }
-      System.out.println(validMoves);
     }
     return validMoves;
   }
