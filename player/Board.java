@@ -399,18 +399,87 @@ public class Board {
 	}
 
 
-  /*
-   * hasValidNetwork() returns a boolean indicating whether there is a existing
-   * network on the board. THIS DOESN'T WORK CURRENTLY.
-   */
-  public boolean hasValidNetwork() {
-    for (int i : countNetworks()) {
-      if (i >= 6) {
-        return true;
-      }
-    }
-    return false;
-  }
+	/*
+	 * hasValidNetwork() returns a boolean indicating whether there is a existing
+	 * network on the board.
+	 */
+	public boolean hasValidNetwork(int color) {
+		int[][] start = starting(color);
+		int[][] noneTransversed = {};
+		boolean[] paths = new boolean[start.length];
+		int pathsIndex = 0;
+		for (int[] s: start) {
+			paths[pathsIndex++] = canReachEnd(s[0], s[1], noneTransversed, color, 1, 0, 0);
+		}
+		for (boolean end: paths) {
+			if (end) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/*
+	 *  canReachEnd() is a helper method for hasValidNetwork(). tells us if a chip can read the goal.
+	 */
+	
+	public boolean canReachEnd(int x, int y, int[][] used, int color, int length, 
+			int prevx, int prevy) {
+		int oppColor;
+		if (color==BLACK) {
+			oppColor = WHITE;
+		} else {
+			oppColor = BLACK;
+		}
+		if (length>5 && (color==WHITE && x==7 || color==BLACK && y==7)) {
+			return true;
+		}
+		boolean[] endPoints = {};
+		int[][] connections = connectionCoordinates(x, y, color);
+		connections = subtract(connections, used);
+
+		int[] unusedDirection = sameDirection(prevx, prevy, x, y);
+		if (dirCoords(x, y, unusedDirection[0], unusedDirection[1],
+				color, oppColor)!=null) {
+			int[][] prevDirection = {dirCoords(x, y,
+					unusedDirection[0], unusedDirection[1], color, oppColor)};
+			connections = subtract(connections, prevDirection);
+		}
+		for (int[] i: connections) {
+			int[][] currentUsed = {{x, y}};
+			int[][] newUsed = doubleMerge(currentUsed, used);
+			boolean open = canReachEnd(i[0], i[1], newUsed, color, length+1, x, y);
+			endPoints = addBoolean(endPoints, open);
+		}
+		for (boolean e: endPoints) {
+			if (e) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/*
+	 *  sameDirection() is another helper for hasValidNetwork. helps to make sure you don't make connections
+	 *  in the a direction more than once in a row.
+	 */
+	
+	public int[] sameDirection(int x, int y, int prevx, int prevy) {
+		int[] empty = {};
+		if (prevx==0 && prevy==0) {
+			return empty;
+		}
+		int subx = prevx - x;
+		int suby = prevy - y;
+		int factor = 1;
+		if (subx!=0) {
+			factor = Math.abs(subx);
+		} else if (suby!=0) {
+			factor = Math.abs(suby);
+		}
+		int[] coords = {subx/factor, suby/factor};
+		return coords;
+	}
 
   /*
    * performMove() executes the given move depending on the moveKind of the
