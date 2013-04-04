@@ -2,6 +2,8 @@
 
 package list;
 
+import player.Board;
+
 /**
  *  A ChipNode is a node in a Chip (doubly-linked list). It represents a chip on the board.
  */
@@ -34,7 +36,7 @@ public class ChipNode {
     this.color = color;
     xpos = x;
     ypos = y;
-    id = x + y;
+    id = x * Board.DIMENSION + y;
     prev = p;
     next = n;
 

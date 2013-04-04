@@ -1,8 +1,8 @@
 package player;
 
-public class BestMove extends Move {
+public class BestMove {
 
-	protected int score;
+	protected double score;
 	protected Move move;
 	
 	public BestMove(int score) {
@@ -13,7 +13,7 @@ public class BestMove extends Move {
 	public BestMove() {
 	}
 	
-	public int score() {
+	public double score() {
 		return score;
 	}
 }

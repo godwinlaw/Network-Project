@@ -2,6 +2,8 @@
 
 package list;
 
+import player.*;
+
 /**
  * A ChipList is a mutable doubly-linked list ADT. Its implementation is
  * circularly-linked and employs a sentinel (dummy) node at the head of the
@@ -44,6 +46,7 @@ public class ChipList {
     head.prev = head;
     size = 0;
     this.color = color;
+    current = head;
   }
 
   /**
@@ -74,14 +77,17 @@ public class ChipList {
    * @param color is the color of that node.
    */
   public ChipNode findNode(int x, int y, int color) {
-    resetIterator();
-    while(hasNext()) {
-      ChipNode node = nextChip();
-      if (node.xpos == x && node.ypos == y && node.color == color) {
-        return node;
+    ChipNode current = head.next;
+    int i = 0;
+    System.out.println(current.xpos + " " + current.ypos);
+    while(current != head) {
+      if (current.id == x * Board.DIMENSION + y) {
+        return current;
       }
+      current = current.next;
+      i ++;
     }
-    System.out.println("ERROR: Node not found");
+    System.out.println("ERROR: Node not found" + i);
     return null;
   }
   
@@ -127,7 +133,6 @@ public class ChipList {
 
   public boolean hasNext() {
     if (current == head) {
-      resetIterator();
       return false;
     } else {
       return true;
@@ -140,7 +145,7 @@ public class ChipList {
     return c;
   }
   
-  private void resetIterator() {
+  public void resetIterator() {
     current = front();
   }
   

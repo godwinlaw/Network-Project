@@ -19,6 +19,7 @@ public class MoveList {
   protected MoveListNode head;
   protected int size;
   protected MoveListNode current;
+  public int count = 0;
 
   /**
    * newNode() calls the MoveListNode constructor.
@@ -101,7 +102,6 @@ public class MoveList {
   
   public boolean hasNext() {
     if (current == head) {
-      resetIterator();
       return false;
     } else {
       return true;

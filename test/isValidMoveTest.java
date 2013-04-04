@@ -14,14 +14,14 @@ public class isValidMoveTest {
     Move mb = new Move(5,7);
     Move mc = new Move(0,5);
     Move md = new Move(7,5);
-    System.out.println("Should return false: " + b.isValidMove(ma, playerColor));
+    /*System.out.println("Should return false: " + b.isValidMove(ma, playerColor));
     System.out.println("Should return true: " + b.isValidMove(ma, opponentColor));
     System.out.println("Should return false: " + b.isValidMove(mb, playerColor));
     System.out.println("Should return true: " + b.isValidMove(mb, opponentColor));
     System.out.println("Should return true: " + b.isValidMove(mc, playerColor));
     System.out.println("Should return false: " + b.isValidMove(mc, opponentColor));
     System.out.println("Should return true: " + b.isValidMove(md, playerColor));
-    System.out.println("Should return false: " + b.isValidMove(md, opponentColor));
+    System.out.println("Should return false: " + b.isValidMove(md, opponentColor));*/
     
     /*
      * Testing adjacent
@@ -32,15 +32,15 @@ public class isValidMoveTest {
      *      -----------------------------------------
      *      |    |  X |  X |  X |  X | BB |  X |    |
      *      -----------------------------------------
-     *      |    |    |    |    |  X | BB |  X |    |
+     *      |  X |  X |  X |  X |  X | BB |  X |    |
      *      -----------------------------------------
-     *      |    |    | BB |    |  X |  X |  X |    |
+     *      |  X | BB | BB |  X |  X |  X |  X |    |
      *      -----------------------------------------
-     *      |    |  X |  X |    |    |    | BB |    |
+     *      |  X |  X |  X |  X |    |    | BB |    |
      *      -----------------------------------------
-     *      |    | BB |    |    |    |  X |    |    |
+     *      |  X | BB | BB |  X |    |  X |    |    |
      *      -----------------------------------------
-     *      |    |    |    |    | BB |    |    |    |
+     *      |  X |  X |  X |  X | BB |    |    |    |
      *      -----------------------------------------
      *
     */
@@ -56,8 +56,6 @@ public class isValidMoveTest {
     b.addChip(2, 6, opponentColor);
     b.addChip(1, 4, opponentColor);
     
-    System.out.println("The list of valid moves is:");
-    System.out.println(b.validMoves(opponentColor));
     
     Move m1 = new Move(1,0);
     Move m2 = new Move(2,0);
@@ -103,7 +101,19 @@ public class isValidMoveTest {
     System.out.println("Should return false: " + b.isValidMove(m20, opponentColor));
     System.out.println("Should return false: " + b.isValidMove(m21, opponentColor));*/
     
+    //System.out.println(b);
+    //b.validMoves(opponentColor);
+    System.out.println("Created new board: ");
+    b = new Board(playerColor);
     System.out.println(b);
-    b.validMoves(opponentColor);
+    
+    System.out.println("Adding to 11");
+    Move m = new Move(1,1);
+    b.performMove(m, playerColor);
+    System.out.println(b);
+    
+    System.out.println("Undoing move");
+    b.undoMove(m, playerColor);
+    System.out.println(b);
   }
 }
