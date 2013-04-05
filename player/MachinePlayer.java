@@ -177,15 +177,9 @@ public class MachinePlayer extends Player {
       BestMove myBest = new BestMove();
       BestMove reply;
 
-      if (board.hasValidNetwork(color)) {
-        if (color == playerColor) {
-          return new BestMove(500);
-        } else {
-          return new BestMove(-500);
-        }
-      }
+
       if (searchDepth == 0) {
-        return new BestMove(board.evaluateBoard(color));
+        return new BestMove(board.evaluateBoard(color) * (searchDepth + 1));
       }
       
       if (color == playerColor) {
@@ -200,19 +194,14 @@ public class MachinePlayer extends Player {
         board.performMove(m, color);
         reply = gameTreeSearchwithAlphaBetaPruning(Math.abs(color - 1), alpha, beta, searchDepth - 1);
         board.undoMove(m, color);
-        double depthPenalty = 0;
-        if (color == playerColor) {
-          depthPenalty = -0.05;
-        } else if (color == opponentColor) {
-          depthPenalty = 0.05;
-        }
+
         if ((color == playerColor) && (reply.score >= myBest.score)) {
           myBest.move = m;
-          myBest.score = reply.score + depthPenalty;
+          myBest.score = reply.score;
           alpha = myBest.score;
         } else if ((color == opponentColor) && (reply.score <= myBest.score)) {
           myBest.move = m;
-          myBest.score = reply.score + depthPenalty;
+          myBest.score = reply.score;
           beta = myBest.score;
         }
         if (alpha >= beta) {
@@ -220,5 +209,51 @@ public class MachinePlayer extends Player {
         }
       }
       return myBest;
+  }
+  
+  private BestMove gameTreeSearchPrunedandHashed(int color, double alpha, double beta, int searchDepth) {
+    BestMove myBest = new BestMove();
+    BestMove reply;
+    int boardScore;
+    
+    if (hashTable.has(board)) {
+      System.out.println("encountered");
+      boardScore = hashTable.findScore(board);
+    } else {
+      boardScore = board.evaluateBoard(color);
+      hashTable.insert(board, boardScore);
+    }
+    
+    if (searchDepth == 0) {
+      return new BestMove(boardScore);
+    }
+    
+    if (color == playerColor) {
+      myBest.score = Double.NEGATIVE_INFINITY;
+    } else {
+      myBest.score = Double.POSITIVE_INFINITY;
+    }
+    
+    MoveList v = board.validMoves(color);
+    while(v.hasNext()) {
+      Move m = v.nextMove();
+      board.performMove(m, color);
+      reply = gameTreeSearchwithAlphaBetaPruning(Math.abs(color - 1), alpha, beta, searchDepth - 1);
+      board.undoMove(m, color);
+
+      if ((color == playerColor) && (reply.score >= myBest.score)) {
+        myBest.move = m;
+        myBest.score = reply.score;
+        alpha = myBest.score;
+      } else if ((color == opponentColor) && (reply.score <= myBest.score)) {
+        myBest.move = m;
+        myBest.score = reply.score;
+        beta = myBest.score;
+      }
+      if (alpha >= beta) {
+        return myBest;
+      }
+    }
+    return myBest;  
   }
 }

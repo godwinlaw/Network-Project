@@ -579,7 +579,14 @@ public class Board {
     // long endTime = System.nanoTime();
     // System.out.println("Evaluate Board took: " + (endTime - startTime));
     // return score;
-    return pairCount(color) * 5 - pairCount(Math.abs(color - 1)) * 4;
+    if (hasValidNetwork(color)) {
+      if (color == myColor) {
+        return 500;
+      } else {
+        return -1000;
+      }
+    }
+    return pairCount(color) * 5 - pairCount(Math.abs(color - 1)) * 10;
   }
 
   public boolean equals(Object board) {
