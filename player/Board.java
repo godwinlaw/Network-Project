@@ -422,8 +422,7 @@ public class Board {
     while (true) {
       cx += hMod;
       cy += vMod;
-      if (cx < 0 || cy < 0 || cx > 7 || cy > 7 || (color == BLACK && cy == 7)
-          || (color == WHITE && cx == 7) || (color == BLACK && cy == 0)
+      if (cx < 0 || cy < 0 || cx > 7 || cy > 7 || (color == BLACK && cy == 0)
           || (color == WHITE && cx == 0)) {
         return null;
       }
