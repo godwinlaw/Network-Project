@@ -762,8 +762,8 @@ public class Board {
     } else {
       oppColor = BLACK;
     }
-    if (length > 5 && (color == WHITE && x == 7 || color == BLACK && y == 7)) {
-      return true;
+    if (color == WHITE && x == 7 || color == BLACK && y == 7) {
+      return length > 5;
     }
     boolean[] endPoints = {};
     int[][] connections = connectionCoordinates(x, y, color);
