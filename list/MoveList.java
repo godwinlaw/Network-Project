@@ -50,6 +50,8 @@ public class MoveList {
   /**
    * isSentinel returns a boolean indicating whether the node in question is the
    * sentinel node.
+   * @param n is the node in question
+   * @returns true if the node is a sentinel
    */
   public boolean isSentinel(MoveListNode n) {
     return n.move == null;
@@ -82,8 +84,9 @@ public class MoveList {
 
   /**
    * front() returns the node at the front of this MoveList.
+   * @returns a MoveListNode
    */
-  public MoveListNode front() {
+  private MoveListNode front() {
     if (size == 0) {
       return null;
     } else {
@@ -91,6 +94,11 @@ public class MoveList {
     }
   }
 
+  /**
+   * elementAt returns the move at index k
+   * @param k is the index
+   * @returns a move
+   */
   public Move elementAt(int k) {
     MoveListNode current = head.next;
     while (k > 0) {
@@ -100,6 +108,10 @@ public class MoveList {
     return current.move;
   }
   
+  /**
+   * hasNext() checks to see if the iterator has reached the end of the list.
+   * @returns true if it hasn't.
+   */
   public boolean hasNext() {
     if (current == head) {
       return false;
@@ -108,22 +120,20 @@ public class MoveList {
     }
   }
   
+  /**
+   * nextMove() returns the move the iterator is pointed to
+   * @returns a Move object
+   */
   public Move nextMove() {
     MoveListNode c = current;
     current = current.next;
     return c.move;
   }
   
+  /**
+   * resetIterator() resets the iterator to the front of the list.
+   */
   public void resetIterator() {
     current = front();
-  }
-  
-  public String toString() {
-    String output = "";
-    resetIterator();
-    while(hasNext()) {
-      output += nextMove().toString() + " ";
-    }
-    return output;
   }
 }

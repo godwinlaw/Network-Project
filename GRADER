@@ -1,13 +1,13 @@
                                      GRADER
 
-Name of student running submit:
-Login of student running submit:
+Name of student running submit: Godwin Law	
+Login of student running submit: cs61b-aat	
 
-Second team member's name:
-Second team member's login:
+Second team member's name:Daniel Liu	
+Second team member's login: cs61b-sv
 
-Third team member's name (if any):
-Third team member's login:
+Third team member's name (if any): N/A
+Third team member's login: N/A
 
 IMPORTANT:  Once you've submitted Project 2 once, the same team member should
 submit always.  If a different teammate must submit, inform cs61b@cory.eecs of
@@ -19,26 +19,27 @@ code together, you may not change partners without the permission of the
 instructor.
 ===============================================================================
 Does your program compile without errors?
-
+Yes, it does.
 
 Have you tested your program on the machines in the Soda CS 61B lab?
-
+Yes.
 
 Did you successfully implement game tree search?  Did you successfully
 implement alpha-beta pruning?  Are there any limitations on it?  What is the
 default number of search levels set by the one-parameter MachinePlayer
 constructor?
-
+Yes, we successfully implemented game tree search with alpha-beta pruning. It is slower to choose step moves, but to account for that, we reduced the search depth for step moves. The default number of search levels is 4.
 
 Describe your board evaluation function in some detail.
+Our board evaluation function first checks if there is a valid network on the board. If the Machine Player has a valid network, then it returns a number indicating this board is desirable. If the opponent has a valid network, then it returns a number indicating that this board
+is undesirable. Else, it counts the number of connections between the Machine Player's pieces on the board, except for the ones that connect pieces within the starting line or the goal line to each other, or pieces that connect from the starting line to the goal line.
 
 
 Does your MachinePlayer use any special method of choosing the first few moves?
-
+Yes, it always places chips in the middle of the end zones. If machine player was white, chips would first be placed in (0,3) and then (7,4). If machine player was black, chips would first be placed in (3,0) and then (4,7).
 
 Is there anything else the graders should know to help them read your project?
-
-
+Nothing in particular.
 
 Describe the classes, modules, and interfaces you designed before and while you
 implemented the project.  Your description should include:
@@ -61,3 +62,214 @@ You will probably need to change some of your design decisions as you go; be
 sure to modify this file to reflect these changes before you submit your
 project.  Your design of classes and interfaces with be worth about 10% of your
 grade.
+
+Classes needed: 
+
+*******************
+PLAYER PACKAGE
+*******************
+abstract class Player
+class MachinePlayer extends Player
+class Board
+class Move
+class BestMove
+
+*******************
+DICT PACKAGE
+*******************
+class Entry
+class HashTableChained
+
+*******************
+LIST PACKAGE
+*******************
+class DList
+class DListNode
+class MoveList
+class MoveListNode
+
+
+
+Modules:
+
+************************************************************
+The following modules and their methods are all found in the
+
+Board class
+
+************************************************************
+1) The game board
+
+/**
+ * Programmer: Godwin
+ * This module is the implementation of
+ * the machine's internal representation
+ * of the game board. 
+ * 
+**/
+
+// elementAt() returns the chip at specified coordinates represented
+// as an integer.
+// Blocked cells are represented by -1 (BLOCKED = -1)
+// Empty cells are represented by 2 (EMPTY = 2)
+// Black cells are represented by 0 (BLACK = 0)
+// White cells are represented by 1 (WHITE = 1)
+// @param x is the x-coordiante of the chip 
+// @param y is the y-coordinate of the chip.
+// @return integer that represents the chip or lack thereof at a cell
+int elementAt(int x, int y)
+
+// performMove() executes a move based on its moveKind.
+// @param m is the move to be executed.
+// @param m is the color representing the player executing
+//         that move
+void performMove(Move m, int color)
+
+// undoMove() undoes a move that was performed on the board
+// @param m is the move to be reversed.
+// @param is the color of the player undoing the move.
+void undoMove(Move m, int color)
+
+// equals() checks for equality between this board and another, which is
+// defined as identical board configurations.
+// @param board is the board being compared to the current board.
+boolean equals(Object board)
+
+// hashCode() returns a unique number for each board
+int hashCode()
+
+
+
+
+2) Determine if a move is valid
+/**
+ * Programmer: Daniel
+ * This module allows the machine player to check for valid
+ * moves.
+**/
+
+// isValidMove() returns a boolean indicating whether a given move is valid
+// in respect to the board. If the board has less than 10 chips, the players
+// are only allowed ADD moves. If the board has more than 10 chips, the players
+// are only allowed STEP moves.
+// @param m is the move in question
+// @return true if move is valid
+boolean isValidMove(Move m)
+
+
+
+3) Generate a list of valid moves
+/**
+ * Programmer: Godwin
+ * This module allows access to a list of valid moves that can be made to 
+ * the game board. Uses the MoveList data structure.
+**/
+
+// validMoves() returns a MoveList of all possible valid moves for a given
+// game board. If the board has less than 10 chips, the function returns a list
+// of ADD moves. If the board has more than 10 chips, the function returns
+// a list of STEP moves.
+// @param color is the color for which valid moves are being generated for.
+// @return a MoveList containing a list of possible moves.
+MoveList validMoves(Board b)
+
+********************************************
+MoveList class
+
+Note: Includes a iterator and functions that allow
+iteration over MoveList
+********************************************
+// insertFront() inserts a move into the front of the MoveList
+// @param m is the move to be inserted
+void insertFront(Move m)
+
+// length() returns the size of the MoveList
+// @return integer indicating size
+int length()
+
+// elementAt() returns the move at index k
+// @param k is the index
+// @returns a move
+Move elementAt(int k)
+
+// resetIterator() sets the iterator variable to be at the front of the
+// MoveList.
+void resetIterator()
+
+// hasNext() checks to see if iterator variable has reached end of the
+// MoveList.
+// @returns true if iterator hasn't reached the end
+boolean hasNext()
+
+// nextMove() returns the move the iterator is pointing to
+// @return a move
+Move nextMove()
+*******************************************
+
+
+
+4) Identify if network exists
+/**
+ * Programmer: Daniel
+ * This module is implemented to check for valid networks on the board.
+**/
+// hasValidNetwork() checks if a valid network exists on a given board for
+// player with @param color.
+boolean hasValidNetwork(int color)
+
+
+
+5) Scoring and evaluating a board
+/**
+ * Programmer: Daniel (Mostly) and Godwin
+ * This module provides the implementation for the evaluation function of the
+ * board.
+**/
+// evaluateBoard(int color) returns an integer indicating the score of the board.
+// @param color is the player the function is evaluating for
+int evaluateBoard(int color)
+
+
+
+
+**************************************************************
+The following modules and their methods are all found in the 
+
+MachinePlayer class
+
+**************************************************************
+
+
+6) Performing a game search tree and pruning
+/**
+ * Programmer: Godwin
+ * This module is the implementation for the minimax algorithm to be performed
+ * on a board. 
+**/
+// gameTreeSearch() performs the minimax algorithm on a board with no pruning.
+// @param color of the player
+// @param searchDepth is the depth the algorithm goes to look for moves
+BestMove gameTreeSearch(int color, int searchDepth)
+
+// gameTreeSearchHashed() performs the minimax algorithm on a board, storing
+// visited board in a hash table.
+// @param color of the player
+// @param searchDepth is the depth the algorithm goes to look for moves
+BestMove gameTreeSearchHashed(int color, int searchDepth)
+
+// gameTreeSearchPruned() performs the minimax algorithm on a board with alpha
+// beta pruning.
+// @param color of the player
+// @param alpha is the best possible move for the player
+// @param beta is the best possible move for the opponent
+// @param searchDepth is the depth the algorithm goes to look for moves
+BestMove gameTreeSearchPruned(int color, double alpha, double beta, int searchDepth)
+
+// gameTreeSearchPrunedandHashed() performs the minimax algorithm on a board
+// with a hash table and with alpha beta pruning.
+// @param color of the player
+// @param alpha is the best possible move for the player
+// @param beta is the best possible move for the opponent
+// @param searchDepth is the depth the algorithm goes to look for moves
+BestMove gameTreeSearchPrunedandHashed(int color, double alpha, double beta, int searchDepth)
+ 

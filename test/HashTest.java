@@ -1,7 +1,6 @@
 package test;
 
-import player.*;
-import list.*;
+import player.Board;
 import dict.*;
 
 public class HashTest {

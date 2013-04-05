@@ -14,14 +14,14 @@ public class isValidMoveTest {
     Move mb = new Move(5,7);
     Move mc = new Move(0,5);
     Move md = new Move(7,5);
-    /*System.out.println("Should return false: " + b.isValidMove(ma, playerColor));
+    System.out.println("Should return false: " + b.isValidMove(ma, playerColor));
     System.out.println("Should return true: " + b.isValidMove(ma, opponentColor));
     System.out.println("Should return false: " + b.isValidMove(mb, playerColor));
     System.out.println("Should return true: " + b.isValidMove(mb, opponentColor));
     System.out.println("Should return true: " + b.isValidMove(mc, playerColor));
     System.out.println("Should return false: " + b.isValidMove(mc, opponentColor));
     System.out.println("Should return true: " + b.isValidMove(md, playerColor));
-    System.out.println("Should return false: " + b.isValidMove(md, opponentColor));*/
+    System.out.println("Should return false: " + b.isValidMove(md, opponentColor));
     
     /*
      * Testing adjacent
@@ -79,7 +79,7 @@ public class isValidMoveTest {
     Move m20 = new Move(2,5);
     Move m21 = new Move(5,6);
     
-    /*System.out.println("Should return false: " + b.isValidMove(m1, opponentColor));
+    System.out.println("Should return false: " + b.isValidMove(m1, opponentColor));
     System.out.println("Should return false: " + b.isValidMove(m2, opponentColor));
     System.out.println("Should return false: " + b.isValidMove(m3, opponentColor));
     System.out.println("Should return false: " + b.isValidMove(m4, opponentColor));
@@ -99,7 +99,7 @@ public class isValidMoveTest {
     System.out.println("Should return false: " + b.isValidMove(m18, opponentColor));
     System.out.println("Should return false: " + b.isValidMove(m19, opponentColor));
     System.out.println("Should return false: " + b.isValidMove(m20, opponentColor));
-    System.out.println("Should return false: " + b.isValidMove(m21, opponentColor));*/
+    System.out.println("Should return false: " + b.isValidMove(m21, opponentColor));
     
     //System.out.println(b);
     //b.validMoves(opponentColor);

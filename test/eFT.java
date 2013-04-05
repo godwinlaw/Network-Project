@@ -9,7 +9,6 @@ public class eFT {
    */
   public static void main(String[] args) {
     int playerColor = Board.BLACK; 
-    int opponentColor = Board.WHITE;
     Board b = new Board(playerColor);
     
     /*
@@ -44,7 +43,6 @@ public class eFT {
     
     System.out.println("The board looks like: ");
     System.out.println(b);
-    b.countNetworks(playerColor);
     System.out.println("The score of this board is: " + b.evaluateBoard(playerColor));
   }
 

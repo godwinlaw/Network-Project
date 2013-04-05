@@ -15,7 +15,6 @@ public class DListNode {
    *  prev references the previous node in the DList.
    *  next references the next node in the DList.
    *
-   *  DO NOT CHANGE THE FOLLOWING FIELD DECLARATIONS.
    */
 
   public Entry item;

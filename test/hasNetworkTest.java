@@ -6,7 +6,6 @@ public class hasNetworkTest {
 
   public static void main(String[] args) {
     int playerColor = Board.BLACK; 
-    int opponentColor = Board.WHITE;
     Board b = new Board(playerColor);
     
     b.addChip(6, 0, playerColor);

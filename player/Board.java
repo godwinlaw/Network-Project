@@ -1,11 +1,10 @@
 package player;
 
 import list.*;
-import java.util.*;
 
 /*
- * The Board Class (Mine). This is used as an internal representation of the
- * Network game board for the MachinePlayer.
+ * The Board Class. This is used as an internal representation of the Network
+ * game board for the MachinePlayer.
  */
 
 public class Board {
@@ -17,25 +16,24 @@ public class Board {
   public static final int DIMENSION = 8;
 
   /*
-   * board is an array that holds Chip objects. myColor indicates
-   * MachinePlayer's color. opponentColor indicates the opponent's color.
-   * MachinePlayreChipsLocations is a ChipList that holds all the information
-   * about MachinePlayer's chips on the board. opponentChipsLocation holds the
-   * same information about the opponent's chips.
+   * Board is a 2-dimensional integer array that holds chips that are represented by
+   * integers. myColor indicates MachinePlayer's color. opponentColor indicates
+   * the opponent's color. machinePlayerChips and opponentChips keep track of
+   * the number of chips on board for the machine player and opponent,
+   * respectively.
    */
   public int[][] board;
   public int myColor;
   public int opponentColor;
-  public ChipList chipsLocations;
-  public ChipList opponentChipsLocations;
 
-  public int myChips;
+  public int machinePlayerChips;
   public int opponentChips;
 
   /*
-   * The default constructor Creates a 8 x 8 board holding Chip objects. The
-   * corners of the board are initialized to have "fake" Chip objects (See
-   * documentation in Chip class). No chips may be placed in these locations.
+   * The default constructor Creates an 8 x 8 board with four blocked corners, 
+   * represented by the BLOCKED constant, and all empty entries represented
+   * by the EMPTY constant.
+   * @param playerColor indicates the color of machine player
    */
   public Board(int playerColor) {
     board = new int[DIMENSION][DIMENSION];
@@ -52,42 +50,34 @@ public class Board {
       this.myColor = WHITE;
       opponentColor = BLACK;
     }
-    myChips = 0;
+    machinePlayerChips = 0;
     opponentChips = 0;
-    chipsLocations = new ChipList(myColor);
-    opponentChipsLocations = new ChipList(opponentColor);
   }
 
+  /*
+   * This constructor creates a new board that is the exact replica of a given
+   * board.
+   * @param b is the given board.
+   */
   public Board(Board b) {
-    board = new int[b.DIMENSION][b.DIMENSION];
-    for (int i = 0; i < b.DIMENSION; i++) {
-      for (int j = 0; j < b.DIMENSION; j++) {
+    board = new int[DIMENSION][DIMENSION];
+    for (int i = 0; i < DIMENSION; i++) {
+      for (int j = 0; j < DIMENSION; j++) {
         board[i][j] = b.board[i][j];
       }
     }
   }
 
-  private Board() {
-    board = new int[DIMENSION][DIMENSION];
-  }
-
   /*
-   * addChip() inserts a Chip object at the specified coordinates on the board
-   * if there are less than 10 chips on the board. Also records it in the
-   * player's ChipList.
+   * addChip() inserts a chip at the specified coordinates on the board
    * @param x and @param y are the coordinates at which chip is to be added.
    * @param color is the color of the chip that is to be added.
    */
-  public void addChip(int x, int y, int color) {
+  private void addChip(int x, int y, int color) {
     if (color == myColor) {
-      // if (color == myColor && chipsLocations.length() < 10) {
-      // chipsLocations.insertFront(x, y, color);
       board[x][y] = myColor;
-      myChips++;
+      machinePlayerChips++;
     } else if (color == opponentColor) {
-      // } else if (color == opponentColor && opponentChipsLocations.length() <
-      // 10) {
-      // opponentChipsLocations.insertFront(x, y, color);
       board[x][y] = opponentColor;
       opponentChips++;
     } else {
@@ -96,27 +86,18 @@ public class Board {
   }
 
   /*
-   * moveChip() moves a Chip from one cell to another if and only if there are
-   * 10 chips on the board. Also records it in the player's ChipList.
+   * moveChip() moves a chip from one cell to another. 
    * @param x1 and @param y1 are the new coordinates of the Chip.
    * @param x2 and @param y2 are the old coordinates of the Chip.
    * @param color is the color of the chip.
    */
-  public void moveChip(int x1, int y1, int x2, int y2, int color) {
-    // System.out.println("MachinePlayer chips: " + chipsLocations);
-    // System.out.println("HumanPlayer chips: " + opponentChipsLocations);
-    // if (color == myColor && chipsLocations.length() == 10) {
+  private void moveChip(int x1, int y1, int x2, int y2, int color) {
     if (color == myColor) {
       board[x1][y1] = board[x2][y2];
       board[x2][y2] = EMPTY;
-      // chipsLocations.findNode(x2, y2, color).updateCoordinates(x1, y1);
-      // } else if (color == opponentColor && opponentChipsLocations.length() ==
-      // 10) {
     } else if (color == opponentColor) {
       board[x1][y1] = board[x2][y2];
       board[x2][y2] = EMPTY;
-      // opponentChipsLocations.findNode(x2, y2, color).updateCoordinates(x1,
-      // y1);
     } else {
       System.out.println("ERROR: Chip cannot be moved. Less than ten chips on the board.");
     }
@@ -125,20 +106,15 @@ public class Board {
   /*
    * removeChip() removes the existing Chip at the specified coordinates.
    * @param x and @param y are the coordinates where the to-be-removed chip
-   * exists.
+   * exists. @param color is the color of that chip.
    */
   private void removeChip(int x, int y, int color) {
     if (color == myColor) {
-      myChips--;
+      machinePlayerChips--;
     } else if (color == opponentColor) {
       opponentChips--;
     }
     board[x][y] = EMPTY;
-    /*
-     * if (color == myColor) { chipsLocations.remove(chipsLocations.findNode(x,
-     * y, color)); } else if (color == opponentColor) {
-     * opponentChipsLocations.remove(chipsLocations.findNode(x, y, color)); }
-     */
   }
 
   /**
@@ -149,20 +125,9 @@ public class Board {
    * @param y
    *          is the y-index.
    * @return the stored value (between 0 and 2).
-   * @exception ArrayIndexOutOfBoundsException
-   *              is thrown if an invalid index is given.
    */
-
   public int elementAt(int x, int y) {
     return board[x][y];
-  }
-
-  public boolean isValidPlace(int x, int y, int color) {
-    if (color == BLACK) {
-      return !(x == 0) && !(x == 7) && board[x][y] == EMPTY;
-    } else {
-      return !(y == 0) && !(y == 7) && board[x][y] == EMPTY;
-    }
   }
 
   /*
@@ -170,8 +135,8 @@ public class Board {
    * valid or not.
    * @param m is the given Move, @param color is the color of the player making
    * the Move
+   * @return true if m is valid
    */
-
   public boolean isValidMove(Move m, int color) {
     if (!isValidPlace(m.x1, m.y1, color)) {
       return false;
@@ -205,7 +170,8 @@ public class Board {
 
   /*
    * performMove() executes the given move depending on the moveKind of the
-   * move. @param m is the move to be performed
+   * move. 
+   * @param m is the move to be performed
    */
   public void performMove(Move m, int color) {
     if (m.moveKind == Move.ADD) {
@@ -218,7 +184,8 @@ public class Board {
   }
 
   /*
-   * undoMove() reverses the actions of a given move. @param m is the move to be
+   * undoMove() reverses the actions of a given move. 
+   * @param m is the move to be
    * reversed.
    */
   public void undoMove(Move m, int color) {
@@ -230,16 +197,18 @@ public class Board {
   }
 
   /*
-   * validMoves() returns an array of Moves that are valid for a given board. If
+   * validMoves() returns a MoveList of moves that are valid for a given board. If
    * the board contains less than 20 chips, the method returns ADD moves that
    * can be made to the board. If the board contains more than 20 chips, the
    * method returns STEP moves that can be made to the board.
+   * @param color represents the player whose valid moves it's seeking
+   * @return MoveList containing moves
    */
   public MoveList validMoves(int color) {
     MoveList validMoves = new MoveList();
     int numOfChips = 0;
     if (color == myColor) {
-      numOfChips = myChips;
+      numOfChips = machinePlayerChips;
     } else if (color == opponentColor) {
       numOfChips = opponentChips;
     }
@@ -282,14 +251,37 @@ public class Board {
     return validMoves;
   }
 
+  /*
+   * hasValidNetwork() returns a boolean indicating whether there is a existing
+   * network on the board.
+   * @param color is the color being checked for a network.
+   * @return true if valid network exists
+   */
+  public boolean hasValidNetwork(int color) {
+
+    int[][] start = starting(color);
+    int[][] noneTransversed = {};
+    boolean[] paths = new boolean[start.length];
+    int pathsIndex = 0;
+    for (int[] s : start) {
+      paths[pathsIndex++] = canReachEnd(s[0], s[1], noneTransversed, color, 1, 0, 0);
+    }
+    for (boolean end : paths) {
+      if (end) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /*
+   * evaluateBoard() returns an integer indicating the score of the board. The max
+   * value of a board is 500, which indicates that machine player has a valid network. 
+   * The minimum score is -500, which indicates that the opponent has a valid network.
+   * @param color is the color of the chips to be evaluated
+   * @return an integer representing the score of the board.
+   */
   public int evaluateBoard(int color) {
-    // Random generator = new Random();
-    // return generator.nextInt(100);
-    // long startTime = System.nanoTime();
-    // int score = pairCount(color) * 5 - pairCount(Math.abs(color - 1)) * 4;
-    // long endTime = System.nanoTime();
-    // System.out.println("Evaluate Board took: " + (endTime - startTime));
-    // return score;
     if (hasValidNetwork(color)) {
       if (color == myColor) {
         return 500;
@@ -300,6 +292,12 @@ public class Board {
     return pairCount(color) - pairCount(Math.abs(color - 1));
   }
 
+  /*
+   * equals() tests equality of the board, which is defined by identical board
+   * configuration.
+   * @param board is the board to be compared to the current board.
+   * @return true if the boards are equal
+   */
   public boolean equals(Object board) {
     try {
       Board b = (Board) board;
@@ -317,6 +315,10 @@ public class Board {
     }
   }
 
+  /*
+   * hashCode() returns a unique number for a board.
+   * @return integer that is the hash code
+   */
   public int hashCode() {
     int hashVal = 0;
     int pow = DIMENSION * DIMENSION - 1;
@@ -329,24 +331,16 @@ public class Board {
     return hashVal;
   }
 
-  public String toString() {
-    String border = "-----------------------------------------\n";
-    String b = "";
-    for (int[] x : transpose()) {
-      for (int y : x) {
-        if (y == BLOCKED) {
-          b += "|||||";
-        } else if (y == EMPTY) {
-          b += "|    ";
-        } else if (y == BLACK) {
-          b += "|  B ";
-        } else if (y == WHITE) {
-          b += "|  W ";
-        }
-      }
-      b += "|\n" + border;
+  /*
+   * numberOfChips() returns the number of chips of a specified color.
+   * @param color is the specified color.
+   */
+  public int numberOfChips(int color) {
+    if (color == myColor) {
+      return machinePlayerChips;
+    } else {
+      return opponentChips;
     }
-    return border + b;
   }
 
   /******************************************
@@ -354,7 +348,18 @@ public class Board {
    */
 
   /*
-   * pairCount() counts the number of connected good pairs
+   * isValidPlace() is a helper function for isValidMove().
+   */
+  public boolean isValidPlace(int x, int y, int color) {
+    if (color == BLACK) {
+      return !(x == 0) && !(x == 7) && board[x][y] == EMPTY;
+    } else {
+      return !(y == 0) && !(y == 7) && board[x][y] == EMPTY;
+    }
+  }
+
+  /*
+   * pairCount() counts the number of connected good pairs.
    */
   public int pairCount(int color) {
     int pairConnectionCount = 0;
@@ -384,7 +389,6 @@ public class Board {
    * second array representing the x and y values.
    * @param cx and cy are the given x and y values.
    */
-
   private int[][] adjacentCoordinates(int cx, int cy) {
     if (cx == 0) {
       int[][] coords = { { cx, cy - 1 }, { cx + 1, cy - 1 }, { cx + 1, cy }, { cx + 1, cy + 1 },
@@ -415,7 +419,6 @@ public class Board {
    * location given by two coordinates.
    * @param cx and @param cy are the coordinates given.
    */
-
   private int[] adjacents(int cx, int cy) {
     int[][] adjc = adjacentCoordinates(cx, cy);
     int[] adjacents;
@@ -440,7 +443,6 @@ public class Board {
    * @param adjacents is the Chip array of adjacent Chips, @param color is the
    * color we compare to.
    */
-
   private int adjacentCount(int[] adjacents, int color) {
     int adjCount = 0;
     for (int c : adjacents) {
@@ -456,7 +458,6 @@ public class Board {
    * the given color
    * @param color is the color of the player in consideration
    */
-
   public int[][] starting(int color) {
     int count = 0, index = 0;
     int[][] start;
@@ -490,6 +491,9 @@ public class Board {
     return start;
   }
 
+  /*
+   * addBolean() is a helper function for hasValidNetwork().
+   */
   public static boolean[] addBoolean(boolean[] booleans, boolean addend) {
     boolean[] added = new boolean[booleans.length + 1];
     for (int i = 0; i < booleans.length; i++) {
@@ -499,6 +503,9 @@ public class Board {
     return added;
   }
 
+  /*
+   * transpose() returns the board's transpose.
+   */
   private int[][] transpose() {
     int[][] t = new int[DIMENSION][DIMENSION];
     for (int i = 0; i < DIMENSION; i++) {
@@ -510,83 +517,10 @@ public class Board {
   }
 
   /*
-   * countNetworks() returns an int-array with information about possible
-   * networks that are forming. For example, if there are 7 chips placed on the
-   * board, with 2 potential networks: one with 3 linked chips and the other
-   * with 4 linked chips, then the array to return will look like this [3,4].
-   */
-  public int[] countNetworks(int color) {
-    int count = 0, index = 0;
-    int[][] none = {};
-    if (color == WHITE) {
-      for (int i : board[0]) {
-        if (i == color) {
-          count++;
-        }
-      }
-      int[][] start = new int[count][2];
-      for (int i = 1; i < DIMENSION - 1; i++) {
-        if (board[0][i] == color) {
-          start[index][0] = 0;
-          start[index++][1] = i;
-        }
-      }
-      return countConnections(start, none, color);
-    } else {
-      for (int[] i : board) {
-        if (i[0] == color) {
-          count++;
-        }
-      }
-      int[][] start = new int[count][2];
-      for (int i = 1; i < DIMENSION - 1; i++) {
-        if (board[i][0] == color) {
-          start[index][0] = i;
-          start[index++][1] = 0;
-        }
-      }
-      return countConnections(start, none, color);
-    }
-  }
-
-  /*
-   * countConnections() is a recursive method that constructs the array for
-   * countNetworks
-   * @param current is the current set of coordinates we're making connections
-   * with,
-   * @param used is the chips we already used in the network being constructed,
-   * and
-   * @param color is the color of the player we're considering.
-   */
-
-  public int[] countConnections(int[][] current, int[][] used, int color) {
-    int[] combinedConnections = {};
-    for (int[] coordinates : current) {
-      int[][] connections = connectionCoordinates(coordinates[0], coordinates[1], color);
-      connections = subtract(connections, used);
-      int[] path;
-      if (connections.length == 0) {
-        int[] end_path = { 1 };
-        path = end_path;
-      } else {
-        int[][] newUsed = doubleMerge(current, used);
-        int[] open_path = countConnections(connections, newUsed, color);
-        for (int i = 0; i < open_path.length; i++) {
-          open_path[i]++;
-        }
-        path = open_path;
-      }
-      combinedConnections = singleMerge(combinedConnections, path);
-    }
-    return combinedConnections;
-  }
-
-  /*
    * singleMerge() merges two int arrays.
    * @param first is the first array, @param second is the second array we want
    * to combine.
    */
-
   public static int[] singleMerge(int[] first, int[] second) {
     int[] merged = new int[first.length + second.length];
     int index = 0;
@@ -605,7 +539,6 @@ public class Board {
    * @param first is the first array, @param second is the second array we want
    * to combine
    */
-
   public static int[][] doubleMerge(int[][] first, int[][] second) {
     int[][] merged = new int[first.length + second.length][2];
     int index = 0;
@@ -672,7 +605,6 @@ public class Board {
    * @param x is the given x, @param y is the given y, @color is the color of
    * the chips we want to connect to
    */
-
   public int[][] connectionCoordinates(int x, int y, int color) {
     int coordinateCount = 0;
     int opp;
@@ -710,7 +642,6 @@ public class Board {
    * indicate which direction we are considering, @param color is this player's
    * color, @param oppColor is the opponent's color.
    */
-
   public int[] dirCoords(int cx, int cy, int hMod, int vMod, int color, int oppColor) {
     while (true) {
       cx += hMod;
@@ -730,31 +661,9 @@ public class Board {
   }
 
   /*
-   * hasValidNetwork() returns a boolean indicating whether there is a existing
-   * network on the board.
-   */
-  public boolean hasValidNetwork(int color) {
-
-    int[][] start = starting(color);
-    int[][] noneTransversed = {};
-    boolean[] paths = new boolean[start.length];
-    int pathsIndex = 0;
-    for (int[] s : start) {
-      paths[pathsIndex++] = canReachEnd(s[0], s[1], noneTransversed, color, 1, 0, 0);
-    }
-    for (boolean end : paths) {
-      if (end) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /*
    * canReachEnd() is a helper method for hasValidNetwork(). tells us if a chip
    * can read the goal.
    */
-
   public boolean canReachEnd(int x, int y, int[][] used, int color, int length, int prevx, int prevy) {
     int oppColor;
     if (color == BLACK) {
@@ -792,7 +701,6 @@ public class Board {
    * sameDirection() is another helper for hasValidNetwork. helps to make sure
    * you don't make connections in the a direction more than once in a row.
    */
-
   public int[] sameDirection(int x, int y, int prevx, int prevy) {
     int[] empty = {};
     if (prevx == 0 && prevy == 0) {
@@ -810,4 +718,26 @@ public class Board {
     return coords;
   }
 
+  /*
+   * toString() prints a string representation of the board.
+   */
+  public String toString() {
+    String border = "-----------------------------------------\n";
+    String b = "";
+    for (int[] x : transpose()) {
+      for (int y : x) {
+        if (y == BLOCKED) {
+          b += "|||||";
+        } else if (y == EMPTY) {
+          b += "|    ";
+        } else if (y == BLACK) {
+          b += "|  B ";
+        } else if (y == WHITE) {
+          b += "|  W ";
+        }
+      }
+      b += "|\n" + border;
+    }
+    return border + b;
+  }
 }

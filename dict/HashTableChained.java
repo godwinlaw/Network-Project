@@ -14,22 +14,17 @@ import player.*;
  *  implements only the compression function, which maps the hash code to
  *  a bucket in the table's range.
  *
- *  DO NOT CHANGE ANY PROTOTYPES IN THIS FILE.
  **/
 
 public class HashTableChained {
 
-  /**
-   *  Place any data fields here.
-   **/
    protected DList[] hashTable;
    protected int tableSize;
    protected int collisions;
 
   /** 
-   *  Construct a new empty hash table intended to hold roughly sizeEstimate
-   *  entries.  (The precise number of buckets is up to you, but we recommend
-   *  you use a prime number, and shoot for a load factor between 0.5 and 1.)
+   *  Constructs a new empty hash table intended to hold roughly sizeEstimate
+   *  entries. 
    **/
 
   public HashTableChained(int sizeEstimate) {
@@ -39,8 +34,7 @@ public class HashTableChained {
   }
 
   /** 
-   *  Construct a new empty hash table with a default size.  Say, a prime in
-   *  the neighborhood of 100.
+   *  Construct a new empty hash table with a default size. 
    **/
 
   public HashTableChained() {
@@ -52,13 +46,10 @@ public class HashTableChained {
   /**
    *  Converts a hash code in the range Integer.MIN_VALUE...Integer.MAX_VALUE
    *  to a value in the range 0...(size of hash table) - 1.
-   *
-   *  This function should have package protection (so we can test it), and
-   *  should be used by insert, find, and remove.
    **/
 
   int compFunction(int code) {
-    int a = 3, b = 7, largePrime = 9973;
+    int a = 3, b = 7, largePrime = 16908799;
     int index = (Math.abs(a * code + b) % largePrime) % tableSize;
     return index;
   }
@@ -100,8 +91,6 @@ public class HashTableChained {
    *  entry.  Multiple entries with the same key (or even the same key and
    *  value) can coexist in the dictionary.
    *
-   *  This method should run in O(1) time if the number of collisions is small.
-   *
    *  @param key the key by which the entry can be retrieved.
    *  @param value an arbitrary object.
    *  @return an entry containing the key and value.
@@ -114,7 +103,6 @@ public class HashTableChained {
     DList chain = hashTable[compFunction(b.hashCode())];
     if (chain != null) {
       chain.insertFront(entry);
-      //System.out.println("Collision!");
       collisions ++;
     } else {
       chain = new DList();
@@ -128,8 +116,6 @@ public class HashTableChained {
    *  Search for an entry with the specified key.  If such an entry is found,
    *  return it; otherwise return null.  If several entries have the specified
    *  key, choose one arbitrarily and return it.
-   *
-   *  This method should run in O(1) time if the number of collisions is small.
    *
    *  @param key the search key.
    *  @return an entry containing the key and an associated value, or null if
@@ -151,6 +137,13 @@ public class HashTableChained {
     return 0;
   }
   
+  /**
+   * The function checks to see if the board already exists
+   * in the hash table.
+   * @param b is the board being searched for
+   * @return true if the hash table has the board specified
+   */
+  
   public boolean has(Board b) {
     DList chain = hashTable[compFunction(b.hashCode())];
     if (chain != null) {
@@ -167,17 +160,25 @@ public class HashTableChained {
   }
 
   /**
-   *  Remove all entries from the dictionary.
+   *  Removes all entries from the dictionary.
    */
   public void makeEmpty() {
     hashTable = new DList[tableSize];
   }
   
+  /**
+   * Counts how many collisions occurred while using the hash table.
+   * @return
+   */
   public int countCollisions() {
     return collisions;
   }
-
-  public int nearestPrime(int num) {
+ 
+  /*
+   * A helper method that returns the nearest prime to a specified number.
+   * @param num is the specified number
+   */
+  private int nearestPrime(int num) {
     boolean[] primes = new boolean[num * 2];
     int i;
     for (i = 0; i < primes.length; i++) {
