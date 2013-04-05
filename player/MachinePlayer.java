@@ -18,12 +18,12 @@ public class MachinePlayer extends Player {
   private Board board;
   private HashTableChained hashTable;
   private boolean alphaBetaPrune;
+  private boolean hash;
 
   // Creates a machine player with the given color. Color is either 0 (black)
   // or 1 (white). (White has the first move.)
   public MachinePlayer(int color) {
-    this(color, Integer.MAX_VALUE);
-    alphaBetaPrune = true;
+    this(color, 4);
   }
 
   // Creates a machine player with the given color and search depth. Color is
@@ -34,17 +34,23 @@ public class MachinePlayer extends Player {
     this.searchDepth = searchDepth;
     hashTable = new HashTableChained();
     board = new Board(color);
+    alphaBetaPrune = true;
+    hash = true;
   }
 
   // Returns a new move by "this" player. Internally records the move (updates
   // the internal game board) as a move by "this" player.
   public Move chooseMove() {
-    if (alphaBetaPrune == true) {
-      Move m = gameTreeSearchwithAlphaBetaPruning(playerColor, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 3).move;
-      forceMove(m);
-      return m;      
+    Move m = new Move();
+    if (alphaBetaPrune && hash) {
+      m = gameTreeSearchPrunedandHashed(playerColor, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, searchDepth).move;    
+    } else if (alphaBetaPrune && !hash) {
+      m = gameTreeSearchPruned(playerColor, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, searchDepth).move;
+    } else if (!alphaBetaPrune && hash) {
+      m = gameTreeSearchHashed(playerColor, searchDepth).move;
+    } else {
+      m = gameTreeSearch(playerColor, searchDepth).move;
     }
-    Move m = gameTreeSearchWithHash(playerColor, 3).move;
     forceMove(m);
     return m;
 /*  MoveList moves = board.validMoves(playerColor);
@@ -122,7 +128,7 @@ public class MachinePlayer extends Player {
     return myBest;  
   }
   
-  private BestMove gameTreeSearchWithHash(int color, int searchDepth) {
+  private BestMove gameTreeSearchHashed(int color, int searchDepth) {
 		BestMove myBest = new BestMove();
 		BestMove reply;
     int boardScore;
@@ -160,23 +166,16 @@ public class MachinePlayer extends Player {
 			board.undoMove(m, color);
 			if (((color == playerColor) && (reply.score >= myBest.score)) 
 					|| ((color == opponentColor) && (reply.score <= myBest.score))) {
-        double depthPenalty = 0;
-        if (color == playerColor) {
-          depthPenalty = -0.05;
-        } else if (color == opponentColor) {
-          depthPenalty = 0.05;
-        }
 			  myBest.move = m;
-				myBest.score = reply.score + depthPenalty;
+				myBest.score = reply.score;
 			}
 	  }
 		return myBest;	
 	}
 
-  private BestMove gameTreeSearchwithAlphaBetaPruning(int color, double alpha, double beta, int searchDepth) {
+  private BestMove gameTreeSearchPruned(int color, double alpha, double beta, int searchDepth) {
       BestMove myBest = new BestMove();
       BestMove reply;
-
 
       if (searchDepth == 0) {
         return new BestMove(board.evaluateBoard(color) * (searchDepth + 1));
@@ -192,7 +191,7 @@ public class MachinePlayer extends Player {
       while(v.hasNext()) {
         Move m = v.nextMove();
         board.performMove(m, color);
-        reply = gameTreeSearchwithAlphaBetaPruning(Math.abs(color - 1), alpha, beta, searchDepth - 1);
+        reply = gameTreeSearchPruned(Math.abs(color - 1), alpha, beta, searchDepth - 1);
         board.undoMove(m, color);
 
         if ((color == playerColor) && (reply.score >= myBest.score)) {
@@ -221,8 +220,10 @@ public class MachinePlayer extends Player {
       boardScore = hashTable.findScore(board);
     } else {
       boardScore = board.evaluateBoard(color);
-      hashTable.insert(board, boardScore);
+      Board newBoard = new Board(board);
+      hashTable.insert(newBoard, boardScore);
     }
+    boardScore *= (searchDepth + 1);
     
     if (searchDepth == 0) {
       return new BestMove(boardScore);
@@ -238,14 +239,14 @@ public class MachinePlayer extends Player {
     while(v.hasNext()) {
       Move m = v.nextMove();
       board.performMove(m, color);
-      reply = gameTreeSearchwithAlphaBetaPruning(Math.abs(color - 1), alpha, beta, searchDepth - 1);
+      reply = gameTreeSearchPruned(Math.abs(color - 1), alpha, beta, searchDepth - 1);
       board.undoMove(m, color);
 
-      if ((color == playerColor) && (reply.score >= myBest.score)) {
+      if ((color == playerColor) && (reply.score > myBest.score)) {
         myBest.move = m;
         myBest.score = reply.score;
         alpha = myBest.score;
-      } else if ((color == opponentColor) && (reply.score <= myBest.score)) {
+      } else if ((color == opponentColor) && (reply.score < myBest.score)) {
         myBest.move = m;
         myBest.score = reply.score;
         beta = myBest.score;
@@ -253,6 +254,9 @@ public class MachinePlayer extends Player {
       if (alpha >= beta) {
         return myBest;
       }
+    }
+    if (searchDepth == this.searchDepth) {
+      hashTable.makeEmpty();
     }
     return myBest;  
   }

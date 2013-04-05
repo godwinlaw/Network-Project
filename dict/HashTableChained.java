@@ -156,6 +156,8 @@ public class HashTableChained {
     if (chain != null) {
       DListNode current = chain.front();
       while (current != null) {
+        System.out.println("item is null:" + current.item() == null);
+        System.out.println("board is null:" + current.item().board() == null);
         Board currentBoard = current.item().board();
         if (currentBoard.equals(b)) {
           return true;
