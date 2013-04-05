@@ -15,6 +15,7 @@ public class MachinePlayer extends Player {
   private int playerColor;
   private int opponentColor;
   private int searchDepth;
+  private int moveCount;
   private Board board;
   private HashTableChained hashTable;
   private boolean alphaBetaPrune;
@@ -31,6 +32,7 @@ public class MachinePlayer extends Player {
   public MachinePlayer(int color, int searchDepth) {
     playerColor = color;
     opponentColor = Math.abs(playerColor - 1);
+    moveCount = 0;
     this.searchDepth = searchDepth;
     hashTable = new HashTableChained();
     board = new Board(color);
@@ -41,7 +43,25 @@ public class MachinePlayer extends Player {
   // Returns a new move by "this" player. Internally records the move (updates
   // the internal game board) as a move by "this" player.
   public Move chooseMove() {
-    Move m = new Move();
+    	moveCount++;
+	Move m;
+	if (moveCount==1) {
+		if (playerColor==Board.WHITE) {
+			m = new Move(0, 3);
+		} else {
+			m = new Move(3, 0);
+		}
+		forceMove(m);
+		return m;
+	} else if (moveCount==2) {
+		if (playerColor==Board.WHITE) {
+			m = new Move(7, 4);
+		} else {
+			m = new Move(4, 7);
+		}
+		forceMove(m);
+		return m;
+	}
     if (alphaBetaPrune && hash) {
       m = gameTreeSearchPrunedandHashed(playerColor, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, searchDepth).move;    
     } else if (alphaBetaPrune && !hash) {
