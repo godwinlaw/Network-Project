@@ -10,7 +10,7 @@ import player.*;
 
 public class Entry {
 
-  protected Board board;
+  public Board board;
   protected int boardScore;
 
   public Board board() {

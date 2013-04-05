@@ -75,6 +75,14 @@ public class DList {
   public int length() {
     return size;
   }
+  
+  public boolean isSentinel(DListNode d) {
+    if (d == head) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   /**
    *  insertFront() inserts an item at the front of this DList.

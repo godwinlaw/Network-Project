@@ -79,7 +79,6 @@ public class ChipList {
   public ChipNode findNode(int x, int y, int color) {
     ChipNode current = head.next;
     int i = 0;
-    System.out.println(current.xpos + " " + current.ypos);
     while(current != head) {
       if (current.id == x * Board.DIMENSION + y) {
         return current;

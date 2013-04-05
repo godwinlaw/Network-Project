@@ -114,7 +114,7 @@ public class HashTableChained {
     DList chain = hashTable[compFunction(b.hashCode())];
     if (chain != null) {
       chain.insertFront(entry);
-      System.out.println("Collision!");
+      //System.out.println("Collision!");
       collisions ++;
     } else {
       chain = new DList();
@@ -155,9 +155,7 @@ public class HashTableChained {
     DList chain = hashTable[compFunction(b.hashCode())];
     if (chain != null) {
       DListNode current = chain.front();
-      while (current != null) {
-        System.out.println("item is null:" + current.item() == null);
-        System.out.println("board is null:" + current.item().board() == null);
+      while (!chain.isSentinel(current)) {
         Board currentBoard = current.item().board();
         if (currentBoard.equals(b)) {
           return true;

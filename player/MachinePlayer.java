@@ -154,7 +154,7 @@ public class MachinePlayer extends Player {
     int boardScore;
     
     if (hashTable.has(board)) {
-      System.out.println("encountered");
+      //System.out.println("encountered");
 	    boardScore = hashTable.findScore(board);
 		} else {
 		  boardScore = board.evaluateBoard(color);
@@ -259,7 +259,7 @@ public class MachinePlayer extends Player {
     while(v.hasNext()) {
       Move m = v.nextMove();
       board.performMove(m, color);
-      reply = gameTreeSearchPruned(Math.abs(color - 1), alpha, beta, searchDepth - 1);
+      reply = gameTreeSearchPrunedandHashed(Math.abs(color - 1), alpha, beta, searchDepth - 1);
       board.undoMove(m, color);
 
       if ((color == playerColor) && (reply.score > myBest.score)) {
