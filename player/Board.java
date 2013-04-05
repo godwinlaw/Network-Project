@@ -638,19 +638,29 @@ public class Board {
    */
 
   /*
-   * pairCount() counts the number of connected
-   */
-  public int pairCount(int color) {
-    int pairConnectionCount = 0;
-    for (int i = 0; i < DIMENSION; i++) {
-      for (int j = 0; j < DIMENSION; j++) {
-        if (board[i][j] == color) {
-          pairConnectionCount += connectionCoordinates(i, j, color).length;
-        }
-      }
-    }
-    return pairConnectionCount;
-  }
+	 * pairCount() counts the number of connected good pairs
+	 */
+	public int pairCount(int color) {
+		int pairConnectionCount = 0;
+		for (int i = 0; i < DIMENSION; i++) {
+			for (int j = 0; j < DIMENSION; j++) {
+				if (board[i][j] == color) {
+					int[][] coords = connectionCoordinates(i, j, color);
+					for (int[] c: coords) {
+						if (color==BLACK && (j==0 || j==7) && (c[1]==0 || c[1]==7)) {
+							continue;
+						} else if (color==WHITE && (i==0 || j==7) && (c[0]==0 || c[0]==7)) {
+							continue;
+						} else {
+							pairConnectionCount++;
+						}
+					}
+				}
+			}
+		}
+		return pairConnectionCount;
+	}
+
 
   /*
    * adjacentCoordinates() is a method that returns a double array of ints,
